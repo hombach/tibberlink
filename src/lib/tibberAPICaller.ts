@@ -243,6 +243,101 @@ export class TibberAPICaller extends TibberHelper {
 		return false;
 	}
 
+	private async createDiagramm(): Promise<void> {
+		// parse JSON data
+		const [dataToday, dataTomorrow] = await Promise.all([
+			getStateAsync(sID_PricesTodayJSON).then((state) => JSON.parse(state.val)),
+			getStateAsync(sID_PricesTomorrowJSON).then((state) => JSON.parse(state.val)),
+		]);
+		// Listen für axisLabels und data initialisieren
+		let exPricesToday: IPrice[] = [];
+		const axisLabels: string[] = [];
+		const dataPoints = [];
+		const barDataPoints = [];
+		// Hole aktuelle Zeit
+		const currentDateTime = new Date();
+		const currentDate = formatDate(currentDateTime);
+		const currentHour = currentDateTime.getHours();
+		const diagramJsonChart = {
+			axisLabels: [],
+			graphs: [
+				{
+					data: [],
+					type: "line",
+					color: "gray",
+					line_pointSizeHover: 5,
+					line_pointSize: 2,
+					line_Tension: 0.2,
+					yAxis_show: false,
+					yAxis_gridLines_show: false,
+					yAxis_gridLines_ticks_length: 5,
+					yAxis_position: "left",
+					yAxis_appendix: "€",
+					yAxis_min: 0.0,
+					yAxis_max: 0.7,
+					yAxis_zeroLineWidth: 5,
+					yAxis_zeroLineColor: "white",
+					displayOrder: 0,
+					tooltip_AppendText: " €",
+					datalabel_color: "white",
+					datalabel_fontFamily: "RobotoCondensed-Light",
+					datalabel_rotation: 70,
+					datalabel_fontSize: 12,
+					datalabel_show: "true",
+					line_PointColor: ["#FFFFFF"],
+					line_PointColorBorder: ["#FFFFFF"],
+					line_PointColorHover: ["##FFFFFF"],
+					line_PointColorBorderHover: ["#FFFFFF"],
+					use_gradient_color: true,
+					gradient_color: [
+						{ value: 0.1, color: "#0FFA1366" },
+						{ value: 0.25, color: "#fff90580" },
+						{ value: 0.2, color: "#fff90580" },
+						{ value: 0.3, color: "#FF004066" },
+					],
+					use_line_gradient_fill_color: true,
+					line_gradient_fill_color: [
+						{ value: 0.1, color: "#0FFA1366" },
+						{ value: 0.25, color: "#fff90580" },
+						{ value: 0.2, color: "#fff90580" },
+						{ value: 0.3, color: "#FF004066" },
+					],
+				},
+				{
+					data: [],
+					type: "bar",
+					color: "#140CF2",
+					yAxis_min: 0,
+					yAxis_max: 1,
+					datalabel_show: false,
+				},
+			],
+		};
+
+		// Daten extrahieren und formatieren
+		const extractData = (data) => {
+			data.forEach((entry) => {
+				const date = new Date(entry.startsAt);
+				const timeLabel = `${formatDate(date)} - ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")} Uhr`;
+				axisLabels.push(timeLabel);
+				dataPoints.push(entry.total);
+				const entryDate = formatDate(date);
+				const entryHour = date.getHours();
+				barDataPoints.push(entryDate === currentDate && entryHour === currentHour ? 0.7 : 0);
+			});
+		};
+		// Daten heute und morgen extrahieren
+		extractData(dataToday);
+		extractData(dataTomorrow);
+		// JSON-Chart erstellen
+		diagramJsonChart.axisLabels = axisLabels;
+		diagramJsonChart.graphs[0].data = dataPoints;
+		diagramJsonChart.graphs[1].data = barDataPoints;
+		// JSON-Chart speichern
+		const outputJsonStr = JSON.stringify(diagramJsonChart, null, 4);
+		await setStateAsync(sID_DiagramJSONChart, outputJsonStr);
+	}
+
 	/**
 	 * updates lists of tomorrows prices of all homes
 	 *
