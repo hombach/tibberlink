@@ -242,7 +242,7 @@ export class TibberAPICaller extends TibberHelper {
 		}
 		return false;
 	}
-
+	/*WIP
 	private async createDiagramm(): Promise<void> {
 		// parse JSON data
 		const [dataToday, dataTomorrow] = await Promise.all([
@@ -337,6 +337,8 @@ export class TibberAPICaller extends TibberHelper {
 		const outputJsonStr = JSON.stringify(diagramJsonChart, null, 4);
 		await setStateAsync(sID_DiagramJSONChart, outputJsonStr);
 	}
+	*/
+	//WIP
 
 	/**
 	 * updates lists of tomorrows prices of all homes
