@@ -289,6 +289,14 @@ class TibberLocal extends tibberHelper_1.TibberHelper {
             throw error;
         }
     }
+    /**
+     * Extracts and parses Mode 3 energy meter messages from a hexadecimal string.
+     *
+     * @param pulse - An identifier for the pulse.
+     * @param transfer - A string representing the hexadecimal Mode 3 messages to be parsed.
+     * @param forceMode - An optional boolean indicating whether to force the mode (default is false).
+     * @returns A Promise that resolves when the parsing and processing are complete.
+     */
     async extractAndParseSMLMessages(pulse, transfer, forceMode = false) {
         const messages = transfer.matchAll(/7707(0100[0-9a-fA-F].{5}?ff).{4,28}62([0-9a-fA-F]{2})52([0-9a-fA-F]{2})([0-9a-fA-F]{2})((?:[0-9a-fA-F]{2}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8}|[0-9a-fA-F]{10}|[0-9a-fA-F]{8}|[0-9a-fA-F]{16}))01(?=(77)|(0101)|(\n))/g);
         const output = [];
@@ -301,6 +309,10 @@ class TibberLocal extends tibberHelper_1.TibberHelper {
             //this.adapter.log.debug(`group 4: $[match[4]}`);
             //this.adapter.log.debug(`group 5: ${match[5]}`);
             result.name = findObisCodeName(match[1]);
+            if (result.name.startsWith(`Found invalid_OBIS_Code:`)) {
+                this.adapter.log.debug(result.name);
+                continue;
+            }
             result.value = parseSignedHex(match[5]);
             const decimalCode = parseInt(match[2], 16);
             result.unit = findDlmsUnitByCode(decimalCode);
@@ -337,7 +349,7 @@ class TibberLocal extends tibberHelper_1.TibberHelper {
                 result.value = Math.round(result.value / 100) / 10;
             }
             this.checkAndSetValueNumber(this.getStatePrefixLocal(pulse, result.name), result.value, this.adapter.config.PulseList[pulse].puName, result.unit, false, false, forceMode);
-            this.adapter.log.debug(`SML parse result (mode 3): ${JSON.stringify(result)}`);
+            this.adapter.log.debug(`Pulse mode 3 parse result: ${JSON.stringify(result)}`);
             const formattedMatch = match[0].replace(/(..)/g, "$1 ").trim();
             output.push(`${getCurrentTimeFormatted()}: ${formattedMatch}\n`);
         }
@@ -357,9 +369,10 @@ class TibberLocal extends tibberHelper_1.TibberHelper {
      * @returns A Promise that resolves when the parsing and processing are complete.
      */
     async extractAndParseMode1_4Messages(pulse, transfer, forceMode = false) {
-        const mode4Results = [];
-        // example HEX string  -  WiP #478  -  meter mode 1 e.g. for "ZPA GH305" meters
+        const PulseParseResults = [];
+        // example HEX strings  -  WiP #478  -  meter mode 1 e.g. for "ZPA GH305" meters
         // transfer = `2f5a50413547483330352e76322d32302e30302d470d0a0d0a02312d303a432e312e302a32353528315a504130303235313337353738290d0a312d303a312e382e302a323535283031383131362e333030322a6b5768290d0a312d303a312e382e312a323535283030303030302e303030302a6b5768290d0a312d303a312e382e322a323535283031383131362e333030322a6b5768290d0a312d303a322e382e302a323535283031393330362e303938392a6b5768290d0a312d303a31362e372e302a323535282d3030333039342a57290d0a312d303a33322e372e302a323535283233332e352a56290d0a312d303a35322e372e302a323535283233332e332a56290d0a312d303a37322e372e302a323535283233332e392a56290d0a312d303a33312e372e302a323535283030322e39382a41290d0a312d303a35312e372e302a323535283030352e33302a41290d0a312d303a37312e372e302a323535283030352e33302a41290d0a312d303a38312e372e312a323535283132302a646567290d0a312d303a38312e372e322a323535283234302a646567290d0a312d303a38312e372e342a323535283139342a646567290d0a312d303a38312e372e31352a323535283138362a646567290d0a312d303a38312e372e32362a323535283139342a646567290d0a312d303a31342e372e302a3235352835302e302a487a290d0a312d303a302e322e302a323535287665722e32302c44363841393343372c3230323030343039290d0a312d303a432e39302e322a323535284436384139334337290d0a312d303a462e462a32353528303030303030290d0a312d303a432e352e302a323535283030314337393034290d0a312d303a33362e372e302a323535282d3030303637332a57290d0a312d303a35362e372e302a323535282d3030313232322a57290d0a312d303a37362e372e302a323535282d3030313139312a57290d0a312d303a312e382e302a39362830303030392e382a6b5768290d0a312d303a312e382e302a39372830303037362e302a6b5768290d0a312d303a312e382e302a39382830303334372e342a6b5768290d0a312d303a312e382e302a39392830383136392e312a6b5768290d0a312d303a312e382e302a3130302831383131362e332a6b5768290d0a210d0a033c`;
+        // transfer = `2f5a50413547483330352e76322d32302e30302d470d0a0d0a02312d303a432e312e302a32353528315a504130303235313337353738290d0a312d303a312e382e302a323535283031383138332e363136372a6b5768290d0a312d303a312e382e312a323535283030303030302e303030302a6b5768290d0a312d303a312e382e322a323535283031383138332e363136372a6b5768290d0a312d303a322e382e302a323535283031393336372e343232382a6b5768290d0a312d303a31362e372e302a323535282d3030303032362a57290d0a312d303a33322e372e302a323535283233302e312a56290d0a312d303a35322e372e302a323535283232392e302a56290d0a312d303a37322e372e302a323535283232392e382a56290d0a312d303a33312e372e302a323535283030322e30382a41290d0a312d303a35312e372e302a323535283030312e31322a41290d0a312d303a37312e372e302a323535283030322e30302a41290d0a312d303a38312e372e312a323535283132302a646567290d0a312d303a38312e372e322a323535283234302a646567290d0a312d303a38312e372e342a323535283139382a646567290d0a312d303a38312e372e31352a323535283332312a646567290d0a312d303a38312e372e32362a323535283330302a646567290d0a312d303a31342e372e302a3235352835302e302a487a290d0a312d303a302e322e302a323535287665722e32302c44363841393343372c3230323030343039290d0a312d303a432e39302e322a323535284436384139334337290d0a312d303a462e462a32353528303030303030290d0a312d303a432e352e302a323535283030314331393034290d0a312d303a33362e372e302a323535282d3030303432332a57290d0a312d303a35362e372e302a323535283030303138372a57290d0a312d303a37362e372e302a323535283030303232312a57290d0a312d303a312e382e302a39362830303030342e302a6b5768290d0a312d303a312e382e302a39372830303037392e342a6b5768290d0a312d303a312e382e302a39382830303339392e362a6b5768290d0a312d303a312e382e302a39392830383138312e352a6b5768290d0a312d303a312e382e302a3130302831383138332e362a6b5768290d0a210d0a0334`;
         // example HEX string  -  WiP #477  -  meter mode 4 e.g. for "eBZ DD3" meters
         // transfer = `2f45425a35444433325230364454415f3130370d0a312d303a302e302e302a323535283145425a30313031303033313331290d0a312d303a39362e312e302a323535283145425a30313031303033313331290d0a312d303a312e382e302a323535283030373435392e37383437313635322a6b5768290d0a312d303a312e382e312a323535283030303030312e3030332a6b5768290d0a312d303a312e382e322a323535283030373435382e3738312a6b5768290d0a312d303a322e382e302a323535283032373532312e33393931323739342a6b5768290d0a312d303a31362e372e302a323535283030303030322e36392a57290d0a312d303a33362e372e302a323535283030303133352e39352a57290d0a312d303a35362e372e302a323535283030303233392e39312a57290d0a312d303a37362e372e302a323535282d3030303337332e31372a57290d0a312d303a33322e372e302a323535283233362e312a56290d0a312d303a35322e372e302a323535283233352e372a56290d0a312d303a37322e372e302a323535283233392e312a56290d0a312d303a39362e352e302a323535283030314334313034290d0a302d303a39362e382e302a323535283036344641453235290d0a210d0a`;
         const asciTransfer = hexToAscii(transfer);
@@ -373,15 +386,19 @@ class TibberLocal extends tibberHelper_1.TibberHelper {
                 //	1-0:2.8.0*255(027521.39912794*kWh)\r\n
                 if (match) {
                     const name = findObisCodeName(match[1]);
+                    if (name.startsWith(`Found invalid_OBIS_Code:`)) {
+                        this.adapter.log.debug(name);
+                        continue;
+                    }
                     const value = Math.round(Number(match[2]) * 10) / 10;
                     const unit = match[3];
                     // Push the parsed measurement into the measurements array
-                    mode4Results.push({ name, value, unit });
+                    PulseParseResults.push({ name, value, unit });
                     this.checkAndSetValueNumber(this.getStatePrefixLocal(pulse, name), value, this.adapter.config.PulseList[pulse].puName, unit, false, false, forceMode);
                 }
             }
         }
-        this.adapter.log.debug(`Pulse mode 1 or 4 parse result: ${JSON.stringify(mode4Results)}`);
+        this.adapter.log.debug(`Pulse mode 1 or 4 parse result: ${JSON.stringify(PulseParseResults)}`);
     }
     /**
      * Validates a Unix timestamp and converts it to a German date-time string.
@@ -551,6 +568,10 @@ function findDlmsUnitByCode(decimalCode) {
  * @returns A string representing the name associated with the OBIS code, or "Unknown" if the code is not found.
  */
 function findObisCodeName(code) {
+    // Check if the provided OBIS code is valid
+    if (!isValidObisCode(code)) {
+        return `Found invalid_OBIS_Code: ${code}`;
+    }
     const obisCodesWithNames = [
         { code: "0100100700ff", name: "Power" },
         { code: "16.7.0", name: "Power" },
@@ -602,5 +623,23 @@ function findObisCodeName(code) {
     ];
     const found = obisCodesWithNames.find((item) => item.code === code);
     return found ? found.name : `Unknown_${code}`;
+}
+/**
+ * Checks if the provided OBIS code is valid.
+ *
+ * This function verifies whether a given OBIS code conforms to one of two possible formats:
+ * - Hexadecimal format: exactly 12 hexadecimal characters.
+ * - Decimal format: three groups of digits separated by dots.
+ *
+ * @param {string} code - The OBIS code to be validated.
+ * @returns {boolean} - Returns true if the code matches either the hexadecimal or decimal format, false otherwise.
+ */
+function isValidObisCode(code) {
+    // Regex for hexadecimal format: exactly 12 hexadecimal characters
+    const hexRegex = /^[0-9a-f]{12}$/;
+    // Regex for decimal format: three groups of digits separated by dots
+    const decRegex = /^\d+(\.\d+){2}$/;
+    // Check if the code matches either of the two formats
+    return hexRegex.test(code) || decRegex.test(code);
 }
 //# sourceMappingURL=tibberLocal.js.map

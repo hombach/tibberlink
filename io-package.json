@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "tibberlink",
-		"version": "3.4.5",
+		"version": "3.4.6",
 		"news": {
+			"3.4.6": {
+				"en": "Catch wrong OBIS Codes, probably caused by Pulse communication errors",
+				"de": "Fange falsche OBIS-Codes ab, wahrscheinlich verursacht durch Pulse-Kommunikationsfehler",
+				"ru": "Перехват неправильных кодов OBIS, вероятно, вызванных ошибками связи Pulse",
+				"pt": "Capturar códigos OBIS incorretos, provavelmente causados por erros de comunicação Pulse",
+				"nl": "Ongeldige OBIS-codes opvangen, waarschijnlijk veroorzaakt door Pulse-communicatiefouten",
+				"fr": "Intercepter les codes OBIS incorrects, probablement causés par des erreurs de communication Pulse",
+				"it": "Cattura codici OBIS errati, probabilmente causati da errori di comunicazione Pulse",
+				"es": "Capturar códigos OBIS incorrectos, probablemente causados por errores de comunicación de Pulse",
+				"pl": "Przechwyć nieprawidłowe kody OBIS, prawdopodobnie spowodowane błędami komunikacji Pulse",
+				"uk": "Перехоплення неправильних OBIS-кодів, ймовірно, спричинених помилками зв'язку Pulse",
+				"zh-cn": "捕获错误的 OBIS 代码，可能是由于 Pulse 通信错误引起的"
+			},
 			"3.4.5": {
 				"en": "decode meter mode 4 for local Tibber Pulse poll (#477)\ndecode meter mode 1 for local Tibber Pulse poll (#478)\nfixed wrong Pulse local status names (voltage)\nadd docu on local Pulse poll config screen (#479)",
 				"de": "Dekodiere Zählermodus 4 für lokale Tibber Pulse-Abfrage (#477)\nDekodiere Zählermodus 1 für lokale Tibber Pulse-Abfrage (#478)\nfalsche lokale Pulse-Statusnamen (Spannung) korrigiert\nDokumentation zum Konfigurationsbildschirm für lokale Pulse-Abfragen hinzugefügt (#479)",
@@ -197,19 +210,6 @@
 				"pl": "włącz ręczną kontrolę skonfigurowanych wyjść, gdy automatyzacja jest wyłączona (#334)\nnapraw kanał LTF, który nie działa, gdy używa się zbyt krótkiego LTF (#383)\noptymalizacje kodu\nzaktualizuj adapter-core do wersji 3.1.4\nzaktualizuj zależności",
 				"uk": "увімкнення ручного керування налаштованими виходами при вимкненні автоматизації (#334)\nвиправлення неробочого каналу LTF при використанні занадто короткого LTF (#383)\nоптимізації коду\nоновлення adapter-core до версії 3.1.4\nоновлення залежностей",
 				"zh-cn": "在自动化被停用时启用对已配置输出的手动控制 (#334)\n修复了使用过短 LTF 时无法工作的 LTF 通道 (#383)\n代码优化\n将 adapter-core 更新到 3.1.4\n升级依赖项"
-			},
-			"3.0.1": {
-				"en": "updated adapter testing\nbumped dependencies",
-				"de": "Adapter-Tests aktualisiert\nAbhängigkeiten aktualisiert",
-				"ru": "обновлены тесты адаптера\nобновлены зависимости",
-				"pt": "atualização dos testes do adaptador\natualização das dependências",
-				"nl": "adaptertests bijgewerkt\nafhankelijkheden bijgewerkt",
-				"fr": "mise à jour des tests d'adaptateur\nmise à jour des dépendances",
-				"it": "aggiornati i test dell'adattatore\naggiornate le dipendenze",
-				"es": "actualización de las pruebas del adaptador\nactualización de las dependencias",
-				"pl": "zaktualizowano testy adaptera\nzaktualizowano zależności",
-				"uk": "оновлено тести адаптера\nоновлено залежності",
-				"zh-cn": "更新适配器测试\n升级依赖项"
 			},
 			"3.0.0": {
 				"en": "BREAKING: dropped support for Node.js 16 (#368)\nBREAKING: js-controller >= 5 is required\nchanged to tier 2 as data provider\ncorrected io-package.json according to the new schema (#368)\nupdate TypeScript to 5.4.5\nupdate adapter-core to 3.0.6",
