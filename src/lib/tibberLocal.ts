@@ -400,8 +400,12 @@ export class TibberLocal extends TibberHelper {
 			//this.adapter.log.debug(`group 5: ${match[5]}`);
 
 			result.name = findObisCodeName(match[1]);
-			if (result.name.startsWith(`Found invalid_OBIS_Code:`)) {
+			if (result.name.startsWith(`Found invalid OBIS-Code:`)) {
 				this.adapter.log.debug(result.name);
+				continue;
+			}
+			if (result.name.startsWith(`Found unknown OBIS-Code:`)) {
+				this.adapter.log.info(result.name);
 				continue;
 			}
 			result.value = parseSignedHex(match[5]);
@@ -492,8 +496,12 @@ export class TibberLocal extends TibberHelper {
 
 				if (match) {
 					const name: string = findObisCodeName(match[1]);
-					if (name.startsWith(`Found invalid_OBIS_Code:`)) {
+					if (name.startsWith(`Found invalid OBIS-Code:`)) {
 						this.adapter.log.debug(name);
+						continue;
+					}
+					if (name.startsWith(`Found unknown OBIS-Code:`)) {
+						this.adapter.log.info(name);
 						continue;
 					}
 					const value: number = Math.round(Number(match[2]) * 10) / 10;
@@ -679,7 +687,7 @@ function findDlmsUnitByCode(decimalCode: number): string {
 function findObisCodeName(code: string): string {
 	// Check if the provided OBIS code is valid
 	if (!isValidObisCode(code)) {
-		return `Found invalid_OBIS_Code: ${code}`;
+		return `Found invalid OBIS-Code: ${code}`;
 	}
 
 	const obisCodesWithNames = [
@@ -732,7 +740,7 @@ function findObisCodeName(code: string): string {
 		{ code: "81.7.26", name: "Current/Potential_L3_Phase_deviation" },
 	];
 	const found = obisCodesWithNames.find((item: any) => item.code === code);
-	return found ? found.name : `Unknown_${code}`;
+	return found ? found.name : `Found unknown OBIS-Code: ${code}`;
 }
 
 /**
@@ -749,7 +757,8 @@ function isValidObisCode(code: string): boolean {
 	// Regex for hexadecimal format: exactly 12 hexadecimal characters
 	const hexRegex = /^[0-9a-f]{12}$/;
 	// Regex for decimal format: three groups of digits separated by dots
-	const decRegex = /^\d+(\.\d+){2}$/;
+	//const decRegex = /^\d+(\.\d+){2}$/;
+	const decRegex = /^\d{1,2}\.\d\.\d{1,2}$/;
 	// Check if the code matches either of the two formats
 	return hexRegex.test(code) || decRegex.test(code);
 }

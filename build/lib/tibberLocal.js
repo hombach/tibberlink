@@ -309,8 +309,12 @@ class TibberLocal extends tibberHelper_1.TibberHelper {
             //this.adapter.log.debug(`group 4: $[match[4]}`);
             //this.adapter.log.debug(`group 5: ${match[5]}`);
             result.name = findObisCodeName(match[1]);
-            if (result.name.startsWith(`Found invalid_OBIS_Code:`)) {
+            if (result.name.startsWith(`Found invalid OBIS-Code:`)) {
                 this.adapter.log.debug(result.name);
+                continue;
+            }
+            if (result.name.startsWith(`Found unknown OBIS-Code:`)) {
+                this.adapter.log.info(result.name);
                 continue;
             }
             result.value = parseSignedHex(match[5]);
@@ -386,8 +390,12 @@ class TibberLocal extends tibberHelper_1.TibberHelper {
                 //	1-0:2.8.0*255(027521.39912794*kWh)\r\n
                 if (match) {
                     const name = findObisCodeName(match[1]);
-                    if (name.startsWith(`Found invalid_OBIS_Code:`)) {
+                    if (name.startsWith(`Found invalid OBIS-Code:`)) {
                         this.adapter.log.debug(name);
+                        continue;
+                    }
+                    if (name.startsWith(`Found unknown OBIS-Code:`)) {
+                        this.adapter.log.info(name);
                         continue;
                     }
                     const value = Math.round(Number(match[2]) * 10) / 10;
@@ -570,7 +578,7 @@ function findDlmsUnitByCode(decimalCode) {
 function findObisCodeName(code) {
     // Check if the provided OBIS code is valid
     if (!isValidObisCode(code)) {
-        return `Found invalid_OBIS_Code: ${code}`;
+        return `Found invalid OBIS-Code: ${code}`;
     }
     const obisCodesWithNames = [
         { code: "0100100700ff", name: "Power" },
@@ -622,7 +630,7 @@ function findObisCodeName(code) {
         { code: "81.7.26", name: "Current/Potential_L3_Phase_deviation" },
     ];
     const found = obisCodesWithNames.find((item) => item.code === code);
-    return found ? found.name : `Unknown_${code}`;
+    return found ? found.name : `Found unknown OBIS-Code: ${code}`;
 }
 /**
  * Checks if the provided OBIS code is valid.
@@ -638,7 +646,8 @@ function isValidObisCode(code) {
     // Regex for hexadecimal format: exactly 12 hexadecimal characters
     const hexRegex = /^[0-9a-f]{12}$/;
     // Regex for decimal format: three groups of digits separated by dots
-    const decRegex = /^\d+(\.\d+){2}$/;
+    //const decRegex = /^\d+(\.\d+){2}$/;
+    const decRegex = /^\d{1,2}\.\d\.\d{1,2}$/;
     // Check if the code matches either of the two formats
     return hexRegex.test(code) || decRegex.test(code);
 }
