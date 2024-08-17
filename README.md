@@ -29,6 +29,7 @@
 ## Adapter for Utilizing TIBBER energy data in ioBroker
 
 This adapter facilitates the connection of data from your Tibber account's API to be used within ioBroker, whether for a single home or multiple residences.
+New Feature: The adapter now supports direct local reading of the Tibber Pulse Sensor through your home network, allowing for real-time monitoring and data collection without relying solely on the cloud API.
 
 If you're not currently a Tibber user, I would greatly appreciate it if you could use my referral link: [Tibber Referral Link](https://invite.tibber.com/mu8c82n5).
 
@@ -107,7 +108,17 @@ If you enjoyed this project — or just feeling generous, consider buying me a b
 
 ! Note that missing version entries are typically dependency updates for improved security.
 
-### 3.4.6 (2024-08-xx)
+### 3.4.8 (2024-08-xx)
+
+-   (HombachC) updated axios because of vulnerability
+-   (HombachC) added tests for Node.js 22
+
+### 3.4.7 (2024-08-10)
+
+-   (HombachC) adapter checker detected optimizations (#493)
+-   (HombachC) improved error message (#490)
+
+### 3.4.6 (2024-08-07)
 
 -   (HombachC) Catch wrong OBIS Codes, probably caused by Pulse communication errors
 -   (HombachC) code cleanup
