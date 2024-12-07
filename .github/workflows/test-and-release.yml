@@ -31,6 +31,7 @@ jobs:
           node-version: '20.x'
           # Uncomment the following line if your adapter cannot be installed using 'npm ci'
           # install-command: 'npm install'
+          # install-command: npm install --legacy-peer-deps
           type-checking: true
           lint: true
 
@@ -52,10 +53,8 @@ jobs:
           # install-command: 'npm install'
           build: true
 
-          
 # TODO: To enable automatic npm releases, create a token on npmjs.org 
 # Enter this token as a GitHub secret (with name NPM_TOKEN) in the repository options
-
 # Then uncomment the following block:
 
 #  # Deploys the final package to NPM
@@ -69,6 +68,10 @@ jobs:
 #      startsWith(github.ref, 'refs/tags/v')
 #
 #    runs-on: ubuntu-latest
+#
+#    # Write permissions are required to create Github releases
+#    permissions:
+#      contents: write
 #
 #    steps:
 #      - uses: ioBroker/testing-action-deploy@v1

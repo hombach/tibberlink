@@ -1,168 +1,101 @@
 {
 	"common": {
 		"name": "tibberlink",
-		"version": "3.4.8",
+		"version": "4.0.0",
 		"news": {
-			"3.4.8": {
-				"en": "updated axios because of vulnerability\nadded tests for Node.js 22",
-				"de": "axios aufgrund einer Schwachstelle aktualisiert\nTests für Node.js 22 hinzugefügt",
-				"ru": "обновлен axios из-за уязвимости\nдобавлены тесты для Node.js 22",
-				"pt": "atualizado axios devido a uma vulnerabilidade\nadicionados testes para Node.js 22",
-				"nl": "axios bijgewerkt vanwege kwetsbaarheid\ntests toegevoegd voor Node.js 22",
-				"fr": "axios mis à jour en raison d'une vulnérabilité\najouté des tests pour Node.js 22",
-				"it": "axios aggiornato a causa di una vulnerabilità\naggiunti test per Node.js 22",
-				"es": "axios actualizado debido a una vulnerabilidad\nse añadieron pruebas para Node.js 22",
-				"pl": "zaktualizowano axios z powodu luki\ndodano testy dla Node.js 22",
-				"uk": "оновлено axios через уразливість\nдодано тести для Node.js 22",
-				"zh-cn": "由于漏洞更新了 axios\n添加了 Node.js 22 的测试"
+			"4.0.0": {
+				"en": "BREAKING: Dropped support for ioBroker.admin versions below 7.0.0 due to the ioBroker Responsive Design Initiative (#544).\nRedesigned the admin tab for the calculator.\noptimize translations, added more tooltips",
+				"de": "BREAKING: Die Unterstützung für ioBroker.admin-Versionen unter 7.0.0 wurde aufgrund der ioBroker Responsive Design Initiative eingestellt (#544).\nDie Registerkarte „Admin“ für den Rechner wurde neu gestaltet.\nÜbersetzungen optimieren, weitere Tooltips hinzugefügt",
+				"ru": "СРОЧНАЯ ИНФОРМАЦИЯ: Прекращена поддержка версий ioBroker.admin ниже 7.0.0 из-за инициативы адаптивного дизайна ioBroker (#544).\nПереработана вкладка администратора калькулятора.\nоптимизировать переводы, добавлены дополнительные подсказки",
+				"pt": "QUEBRANDO: Suporte abandonado para versões ioBroker.admin abaixo de 7.0.0 devido à ioBroker Responsive Design Initiative (#544).\nA guia de administração da calculadora foi redesenhada.\notimizar traduções, adicionou mais dicas de ferramentas",
+				"nl": "BREAKING: Ondersteuning voor ioBroker.admin-versies lager dan 7.0.0 is stopgezet vanwege het ioBroker Responsive Design Initiative (#544).\nHet beheerderstabblad voor de rekenmachine is opnieuw ontworpen.\noptimaliseer vertalingen, heb meer tooltips toegevoegd",
+				"fr": "RUPTURE : suppression de la prise en charge des versions ioBroker.admin inférieures à 7.0.0 en raison de l'initiative de conception réactive ioBroker (#544).\nRefonte de l'onglet d'administration de la calculatrice.\noptimiser les traductions, ajout de plus d'info-bulles",
+				"it": "BREAKING: Supporto interrotto per le versioni di ioBroker.admin precedenti alla 7.0.0 a causa della ioBroker Responsive Design Initiative (#544).\nRiprogettata la scheda di amministrazione per la calcolatrice.\nottimizzare le traduzioni, aggiungere più tooltip",
+				"es": "ÚLTIMA HORA: Se eliminó el soporte para las versiones de ioBroker.admin inferiores a 7.0.0 debido a la Iniciativa de Diseño Responsivo de ioBroker (#544).\nRediseñado la pestaña de administración de la calculadora.\noptimizar las traducciones, agregar más información sobre herramientas",
+				"pl": "ŁAMANIE: Usunięto obsługę wersji ioBroker.admin poniżej 7.0.0 z powodu inicjatywy ioBroker Responsive Design Initiative (nr 544).\nPrzeprojektowano zakładkę administracyjną kalkulatora.\nzoptymalizować tłumaczenia, dodano więcej podpowiedzi",
+				"uk": "ПОРУШЕННЯ: припинено підтримку версій ioBroker.admin нижче 7.0.0 через ініціативу ioBroker Responsive Design Initiative (#544).\nПерероблено вкладку адміністратора для калькулятора.\nоптимізувати переклади, додано більше підказок",
+				"zh-cn": "重大事件：由于 ioBroker 响应式设计计划 (#544)，不再支持 7.0.0 以下的 ioBroker.admin 版本。\n重新设计了计算器的管理选项卡。\n优化翻译，添加更多工具提示"
 			},
-			"3.4.7": {
-				"en": "adapter checker detected optimizations (#493)\nimproved error message (#490)",
-				"de": "Adapter-Checker erkannte Optimierungen (#493)\nverbesserte Fehlermeldung (#490)",
-				"ru": "оптимизации, обнаруженные проверяющим адаптера (#493)\nулучшенное сообщение об ошибке (#490)",
-				"pt": "otimizações detectadas pelo verificador de adaptadores (#493)\nmensagem de erro aprimorada (#490)",
-				"nl": "door adapter checker gedetecteerde optimalisaties (#493)\nverbeterde foutmelding (#490)",
-				"fr": "optimisations détectées par le vérificateur d'adaptateurs (#493)\nmessage d'erreur amélioré (#490)",
-				"it": "ottimizzazioni rilevate dal controllo dell'adattatore (#493)\nmessaggio di errore migliorato (#490)",
-				"es": "optimizaciones detectadas por el verificador de adaptadores (#493)\nmensaje de error mejorado (#490)",
-				"pl": "optymalizacje wykryte przez sprawdzanie adaptera (#493)\nulepszona wiadomość o błędzie (#490)",
-				"uk": "оптимізації, виявлені перевіряючим адаптера (#493)\nпокращене повідомлення про помилку (#490)",
-				"zh-cn": "适配器检查器检测到的优化 (#493)\n改进的错误消息 (#490)"
+			"3.5.4": {
+				"en": "Fix error in calculator channel 'best single hours' (#594)\nIntroduce 'iobroker/eslint-config' (#591)\nPerformance optimizations\nDependency updates",
+				"de": "Fehler im Berechnungs-Kanal 'beste einzelne Stunden' (#594) beheben\n'iobroker/eslint-config' einführen (#591)\nLeistungsoptimierungen\nAbhängigkeitsaktualisierungen",
+				"ru": "Исправление ошибки в канале калькулятора 'лучшие отдельные часы' (#594)\nВнедрение 'iobroker/eslint-config' (#591)\nОптимизация производительности\nОбновление зависимостей",
+				"pt": "Corrigir erro no canal do calculador 'melhores horas individuais' (#594)\nIntroduzir 'iobroker/eslint-config' (#591)\nOtimizações de desempenho\nAtualizações de dependências",
+				"nl": "Fout in de calculatorkanaal 'beste enkele uren' (#594) verhelpen\n'iobroker/eslint-config' introduceren (#591)\nPrestatieoptimalisaties\nAfhankelijkheidsupdates",
+				"fr": "Corriger l'erreur dans le canal du calculateur 'meilleures heures individuelles' (#594)\nIntroduire 'iobroker/eslint-config' (#591)\nOptimisations des performances\nMises à jour des dépendances",
+				"it": "Correggere l'errore nel canale del calcolatore 'migliori singole ore' (#594)\nIntrodurre 'iobroker/eslint-config' (#591)\nOttimizzazioni delle prestazioni\nAggiornamenti delle dipendenze",
+				"es": "Corregir error en el canal del calculador 'mejores horas individuales' (#594)\nIntroducir 'iobroker/eslint-config' (#591)\nOptimizaciones de rendimiento\nActualizaciones de dependencias",
+				"pl": "Napraw błąd w kanale kalkulatora 'najlepsze pojedyncze godziny' (#594)\nWprowadź 'iobroker/eslint-config' (#591)\nOptymalizacje wydajności\nAktualizacje zależności",
+				"uk": "Виправити помилку в каналі калькулятора 'кращі окремі години' (#594)\nВпровадити 'iobroker/eslint-config' (#591)\nОптимізація продуктивності\nОновлення залежностей",
+				"zh-cn": "修复计算器频道 '最佳单个小时' 中的错误 (#594)\n引入 'iobroker/eslint-config' (#591)\n性能优化\n更新依赖"
 			},
-			"3.4.6": {
-				"en": "Catch wrong OBIS Codes, probably caused by Pulse communication errors",
-				"de": "Fange falsche OBIS-Codes ab, wahrscheinlich verursacht durch Pulse-Kommunikationsfehler",
-				"ru": "Перехват неправильных кодов OBIS, вероятно, вызванных ошибками связи Pulse",
-				"pt": "Capturar códigos OBIS incorretos, provavelmente causados por erros de comunicação Pulse",
-				"nl": "Ongeldige OBIS-codes opvangen, waarschijnlijk veroorzaakt door Pulse-communicatiefouten",
-				"fr": "Intercepter les codes OBIS incorrects, probablement causés par des erreurs de communication Pulse",
-				"it": "Cattura codici OBIS errati, probabilmente causati da errori di comunicazione Pulse",
-				"es": "Capturar códigos OBIS incorrectos, probablemente causados por errores de comunicación de Pulse",
-				"pl": "Przechwyć nieprawidłowe kody OBIS, prawdopodobnie spowodowane błędami komunikacji Pulse",
-				"uk": "Перехоплення неправильних OBIS-кодів, ймовірно, спричинених помилками зв'язку Pulse",
-				"zh-cn": "捕获错误的 OBIS 代码，可能是由于 Pulse 通信错误引起的"
+			"3.5.3": {
+				"en": "Fix edge case in output state setup and usage\nOptimized state subscription\nUpdate deprecated state calls\nAdd await to delObjectAsync\nHarmonize project tools\nDependency updates",
+				"de": "Randfall bei der Einrichtung und Nutzung von Ausgabeständen behoben\nZustandsabonnement optimiert\nVeraltete Zustandsaufrufe aktualisiert\nAwait zu delObjectAsync hinzugefügt\nProjektwerkzeuge harmonisiert\nAbhängigkeiten aktualisiert",
+				"ru": "Исправлен крайний случай настройки и использования выходного состояния\nОптимизирована подписка на состояние\nОбновлены устаревшие вызовы состояния\nДобавлено ожидание в delObjectAsync\nУнификация инструментов проекта\nОбновление зависимостей",
+				"pt": "Corrigir caso extremo na configuração e uso do estado de saída\nAssinatura de estado otimizada\nAtualizar chamadas de estado obsoletas\nAdicionar await ao delObjectAsync\nHarmonizar ferramentas do projeto\nAtualizar dependências",
+				"nl": "Randgeval in output statusinstelling en gebruik opgelost\nStatusabonnement geoptimaliseerd\nVerouderde statusaanroepen bijgewerkt\nAwait toegevoegd aan delObjectAsync\nProjecttools geharmoniseerd\nAfhankelijkheden bijgewerkt",
+				"fr": "Correction d'un cas limite dans la configuration et l'utilisation de l'état de sortie\nOptimisation de la souscription d'état\nMise à jour des appels d'état obsolètes\nAjout d'attente à delObjectAsync\nHarmonisation des outils de projet\nMise à jour des dépendances",
+				"it": "Corretto caso limite nella configurazione e utilizzo dello stato di output\nOttimizzata la sottoscrizione dello stato\nAggiornate le chiamate di stato deprecate\nAggiunto await a delObjectAsync\nArmonizzati gli strumenti del progetto\nAggiornate le dipendenze",
+				"es": "Corregir caso límite en la configuración y uso del estado de salida\nOptimizar suscripción de estado\nActualizar llamadas de estado obsoletas\nAgregar await a delObjectAsync\nArmonizar herramientas del proyecto\nActualizar dependencias",
+				"pl": "Naprawiono przypadek brzegowy w konfiguracji i użyciu stanu wyjścia\nZoptymalizowano subskrypcję stanu\nZaktualizowano przestarzałe wywołania stanów\nDodano await do delObjectAsync\nUjednolicono narzędzia projektu\nZaktualizowano zależności",
+				"uk": "Виправлено крайній випадок у налаштуванні та використанні стану виходу\nОптимізовано підписку на стан\nОновлено застарілі виклики стану\nДодано await до delObjectAsync\nУніфіковано інструменти проєкту\nОновлено залежності",
+				"zh-cn": "修复输出状态设置和使用中的边缘情况\n优化状态订阅\n更新已弃用的状态调用\n在 delObjectAsync 中添加 await\n统一项目工具\n更新依赖项"
 			},
-			"3.4.5": {
-				"en": "decode meter mode 4 for local Tibber Pulse poll (#477)\ndecode meter mode 1 for local Tibber Pulse poll (#478)\nfixed wrong Pulse local status names (voltage)\nadd docu on local Pulse poll config screen (#479)",
-				"de": "Dekodiere Zählermodus 4 für lokale Tibber Pulse-Abfrage (#477)\nDekodiere Zählermodus 1 für lokale Tibber Pulse-Abfrage (#478)\nfalsche lokale Pulse-Statusnamen (Spannung) korrigiert\nDokumentation zum Konfigurationsbildschirm für lokale Pulse-Abfragen hinzugefügt (#479)",
-				"ru": "декодировать режим счетчика 4 для локального опроса Tibber Pulse (#477)\nдекодировать режим счетчика 1 для локального опроса Tibber Pulse (#478)\nисправлены неверные локальные названия статусов Pulse (напряжение)\nдобавить документацию на экран конфигурации локального опроса Pulse (#479)",
-				"pt": "decodificar modo de medidor 4 para pesquisa local do Tibber Pulse (#477)\ndecodificar modo de medidor 1 para pesquisa local do Tibber Pulse (#478)\nnomes de status locais do Pulse incorretos corrigidos (voltagem)\nadicionar documentação na tela de configuração de pesquisa local do Pulse (#479)",
-				"nl": "decodeer meterstand 4 voor lokale Tibber Pulse-peiling (#477)\ndecodeer meterstand 1 voor lokale Tibber Pulse-peiling (#478)\nfoutieve lokale Pulstatusnamen (spanning) gecorrigeerd\ndocumentatie toevoegen op het configuratiescherm voor lokale Pulse-peiling (#479)",
-				"fr": "décoder le mode compteur 4 pour le sondage local Tibber Pulse (#477)\ndécoder le mode compteur 1 pour le sondage local Tibber Pulse (#478)\nnoms de statuts locaux de Pulse incorrects corrigés (tension)\najouter de la documentation sur l'écran de configuration des sondages locaux de Pulse (#479)",
-				"it": "decodificare la modalità del contatore 4 per il sondaggio locale di Tibber Pulse (#477)\ndecodificare la modalità del contatore 1 per il sondaggio locale di Tibber Pulse (#478)\ncorretti nomi di stato locali di Pulse errati (tensione)\naggiungere la documentazione sulla schermata di configurazione del sondaggio Pulse locale (#479)",
-				"es": "decodificar el modo del medidor 4 para la encuesta local de Tibber Pulse (#477)\ndecodificar el modo del medidor 1 para la encuesta local de Tibber Pulse (#478)\nnombres de estados locales de Pulse corregidos (voltaje)\nagregar documentación en la pantalla de configuración de la encuesta de Pulse local (#479)",
-				"pl": "dekodować tryb licznika 4 dla lokalnej ankiety Tibber Pulse (#477)\ndekodować tryb licznika 1 dla lokalnej ankiety Tibber Pulse (#478)\nnazwy lokalnych statusów Pulse (napięcie) naprawiono\ndodaj dokumentację na ekranie konfiguracji lokalnej ankiety Pulse (#479)",
-				"uk": "декодувати режим лічильника 4 для локального опитування Tibber Pulse (#477)\nдекодувати режим лічильника 1 для локального опитування Tibber Pulse (#478)\nвиправлено неправильні локальні назви статусів Pulse (напруга)\nдодати документацію на екрані налаштувань локального опитування Pulse (#479)",
-				"zh-cn": "解码本地 Tibber Pulse 轮询的仪表模式 4 (#477)\n解码本地 Tibber Pulse 轮询的仪表模式 1 (#478)\n修正错误的 Pulse 本地状态名称（电压）\n在本地 Pulse 轮询配置屏幕上添加文档 (#479)"
+			"3.5.2": {
+				"en": "Add verification for YES/NO 2 values in calculator (#547)\nOptimized responsive design (#544)\nMigrate eslint to >9.x\nSwitch to ES2022 code\nAdapted to new API constraints (#546)",
+				"de": "Hinzufügen einer Verifizierung für YES/NO 2-Werte im Rechner (#547)\nOptimiertes responsives Design (#544)\nMigration von eslint zu >9.x\nUmstellung auf ES2022-Code\nAngepasst an neue API-Einschränkungen (#546)",
+				"ru": "Добавлена проверка значений ДА/НЕТ 2 в калькуляторе (#547)\nОптимизирован адаптивный дизайн (#544)\nПереход на eslint >9.x\nПереход на код ES2022\nАдаптировано к новым ограничениям API (#546)",
+				"pt": "Adicionar verificação para valores SIM/NÃO 2 na calculadora (#547)\nDesign responsivo otimizado (#544)\nMigrar eslint para >9.x\nMudar para código ES2022\nAdaptado para novas restrições de API (#546)",
+				"nl": "Verificatie toegevoegd voor JA/NEE 2-waarden in calculator (#547)\nGeoptimaliseerd responsief ontwerp (#544)\nMigratie eslint naar >9.x\nOverschakeling naar ES2022-code\nAangepast aan nieuwe API-beperkingen (#546)",
+				"fr": "Ajout de la vérification des valeurs OUI/NON 2 dans la calculatrice (#547)\nOptimisation du design adaptatif (#544)\nMigration d'eslint vers >9.x\nPassage au code ES2022\nAdaptation aux nouvelles contraintes de l'API (#546)",
+				"it": "Aggiunta verifica per i valori SÌ/NO 2 nel calcolatore (#547)\nDesign reattivo ottimizzato (#544)\nMigrazione di eslint a >9.x\nPassaggio al codice ES2022\nAdattato ai nuovi vincoli API (#546)",
+				"es": "Añadida verificación para valores SÍ/NO 2 en calculadora (#547)\nOptimizado diseño responsivo (#544)\nMigrar eslint a >9.x\nCambiar a código ES2022\nAdaptado a nuevas restricciones de API (#546)",
+				"pl": "Dodano weryfikację wartości TAK/NIE 2 w kalkulatorze (#547)\nZoptymalizowany responsywny design (#544)\nMigracja eslint do >9.x\nPrzejście na kod ES2022\nDostosowano do nowych ograniczeń API (#546)",
+				"uk": "Додано перевірку значень ТАК/НІ 2 в калькуляторі (#547)\nОптимізовано адаптивний дизайн (#544)\nМіграція eslint до >9.x\nПерехід на код ES2022\nАдаптовано до нових обмежень API (#546)",
+				"zh-cn": "为计算器中的 YES/NO 2 值添加验证 (#547)\n优化响应式设计 (#544)\n迁移 eslint 到 >9.x\n切换到 ES2022 代码\n适应新的 API 约束 (#546)"
 			},
-			"3.4.4": {
-				"en": "local poll of data - change units Wh to kWh and round to 0.1kWh (#469)",
-				"de": "Lokale Abfrage von Daten - Einheiten von Wh in kWh ändern und auf 0,1 kWh runden (#469)",
-				"ru": "локальный опрос данных - изменить единицы измерения с Втч на кВтч и округлить до 0,1 кВтч (#469)",
-				"pt": "consulta local de dados - alterar unidades de Wh para kWh e arredondar para 0,1kWh (#469)",
-				"nl": "lokale gegevenspoll - verander eenheden van Wh naar kWh en rond af naar 0,1 kWh (#469)",
-				"fr": "sondage local de données - changer les unités de Wh en kWh et arrondir à 0,1kWh (#469)",
-				"it": "sondaggio locale dei dati - cambiare le unità da Wh a kWh e arrotondare a 0,1 kWh (#469)",
-				"es": "sondeo local de datos: cambiar unidades de Wh a kWh y redondear a 0,1kWh (#469)",
-				"pl": "lokalne sondowanie danych - zmiana jednostek z Wh na kWh i zaokrąglenie do 0,1 kWh (#469)",
-				"uk": "локальне опитування даних - змінити одиниці з Втч на кВтч та округлити до 0,1 кВтч (#469)",
-				"zh-cn": "本地数据轮询 - 将单位从 Wh 更改为 kWh 并四舍五入到 0.1kWh (#469)"
+			"3.5.1": {
+				"en": "changed to less feed disconnection warnings in log (#445)\nfix error in output2 of smart battery buffer (#538)\nupdate deprecated state calls\ndependency updates",
+				"de": "geändert auf weniger Feed-Trennungswarnungen im Log (#445)\nFehler in Ausgang2 des Smart-Batterie-Puffers behoben (#538)\nveraltete Statusaufrufe aktualisiert\nAbhängigkeitsupdates",
+				"ru": "изменено на меньшее количество предупреждений об отключении канала в журнале (#445)\nисправлена ошибка в выходе2 умного буферного аккумулятора (#538)\nобновление устаревших вызовов состояния\nобновления зависимостей",
+				"pt": "alterado para menos avisos de desconexão de feed no log (#445)\ncorreção de erro na saída2 do buffer de bateria inteligente (#538)\natualização de chamadas de estado obsoletas\natualizações de dependências",
+				"nl": "gewijzigd naar minder feed-verbindingswaarschuwingen in logboek (#445)\nfout in output2 van slimme batterijbuffer opgelost (#538)\nverouderde statusaanroepen bijgewerkt\nbijwerken van afhankelijkheden",
+				"fr": "modifié pour moins d'avertissements de déconnexion de flux dans le journal (#445)\ncorrection de l'erreur dans la sortie2 du tampon de batterie intelligent (#538)\nmise à jour des appels d'état obsolètes\nmises à jour des dépendances",
+				"it": "modificato per meno avvisi di disconnessione del feed nel registro (#445)\ncorretto errore in output2 del buffer batteria intelligente (#538)\naggiornamento delle chiamate di stato deprecate\naggiornamenti delle dipendenze",
+				"es": "cambiado a menos advertencias de desconexión de alimentación en el registro (#445)\ncorregir error en la salida2 del búfer de batería inteligente (#538)\nactualizar llamadas de estado obsoletas\nactualizaciones de dependencias",
+				"pl": "zmieniono na mniej ostrzeżeń o odłączeniu kanału w dzienniku (#445)\nnaprawiono błąd w wyjściu2 bufora inteligentnej baterii (#538)\naktualizacja przestarzałych wywołań stanu\naktualizacje zależności",
+				"uk": "змінено на менше попереджень про відключення каналу в журналі (#445)\nвиправлено помилку в виході2 розумного буфера акумулятора (#538)\nоновлення застарілих викликів стану\nоновлення залежностей",
+				"zh-cn": "日志中减少了馈电断开警告 (#445)\n修复了智能电池缓冲区的输出2错误 (#538)\n更新了不推荐的状态调用\n依赖项更新"
 			},
-			"3.4.3": {
-				"en": "added unit to Pulse temperature and round to 0.1°C\nadded unit to Pulse battery voltage and round to 100mV\nadded unit to Pulse uptime\nadded state with Pulse uptime as human readable string",
-				"de": "Einheit zur Pulse-Temperatur hinzugefügt und auf 0,1°C gerundet\nEinheit zur Pulse-Batteriespannung hinzugefügt und auf 100mV gerundet\nEinheit zur Pulse-Betriebszeit hinzugefügt\nZustand mit Pulse-Betriebszeit als lesbaren String hinzugefügt",
-				"ru": "добавлена единица измерения температуры Pulse и округление до 0,1°C\nдобавлена единица измерения напряжения батареи Pulse и округление до 100мВ\nдобавлена единица измерения времени работы Pulse\nдобавлено состояние с временем работы Pulse в виде читаемой строки",
-				"pt": "adicionada unidade à temperatura do Pulse e arredondada para 0,1°C\nadicionada unidade à voltagem da bateria do Pulse e arredondada para 100mV\nadicionada unidade ao tempo de atividade do Pulse\nadicionado estado com tempo de atividade do Pulse como string legível",
-				"nl": "eenheid toegevoegd aan Pulse-temperatuur en afgerond naar 0,1°C\neenheid toegevoegd aan Pulse-accuspanning en afgerond naar 100mV\neenheid toegevoegd aan Pulse-uptime\ntoestand toegevoegd met Pulse-uptime als leesbare string",
-				"fr": "ajout de l'unité à la température du Pulse et arrondi à 0,1°C\najout de l'unité à la tension de la batterie du Pulse et arrondi à 100mV\najout de l'unité au temps de fonctionnement du Pulse\najout de l'état avec le temps de fonctionnement du Pulse sous forme de chaîne lisible",
-				"it": "aggiunta unità alla temperatura Pulse e arrotondata a 0,1°C\naggiunta unità alla tensione della batteria Pulse e arrotondata a 100mV\naggiunta unità al tempo di attività Pulse\naggiunto stato con tempo di attività Pulse come stringa leggibile",
-				"es": "se agregó unidad a la temperatura del Pulse y se redondeó a 0,1°C\nse agregó unidad al voltaje de la batería del Pulse y se redondeó a 100mV\nse agregó unidad al tiempo de actividad del Pulse\nse agregó estado con el tiempo de actividad del Pulse como cadena legible",
-				"pl": "dodano jednostkę do temperatury Pulse i zaokrąglono do 0,1°C\ndodano jednostkę do napięcia baterii Pulse i zaokrąglono do 100mV\ndodano jednostkę do czasu pracy Pulse\ndodano stan z czasem pracy Pulse jako czytelny ciąg znaków",
-				"uk": "додано одиницю виміру температури Pulse і округлено до 0,1°C\nдодано одиницю виміру напруги акумулятора Pulse і округлено до 100мВ\nдодано одиницю виміру часу роботи Pulse\nдодано стан з часом роботи Pulse у вигляді читабельного рядка",
-				"zh-cn": "添加单位到 Pulse 温度并四舍五入到 0.1°C\n添加单位到 Pulse 电池电压并四舍五入到 100mV\n添加单位到 Pulse 运行时间\n添加具有 Pulse 运行时间的状态为人类可读字符串"
+			"3.5.0": {
+				"en": "update adapter core\nfix error in SML decoder\nadd 2 new SML scale factor codes (#535)\ndependency updates",
+				"de": "Adapter-Core aktualisieren\nFehler im SML-Decoder beheben\n2 neue SML-Skalierungsfaktoren hinzufügen (#535)\nAbhängigkeitsupdates",
+				"ru": "обновить ядро адаптера\nисправить ошибку в декодере SML\nдобавить 2 новых кода масштабирования SML (#535)\nобновления зависимостей",
+				"pt": "atualizar o núcleo do adaptador\ncorrigir erro no decodificador SML\nadicionar 2 novos códigos de fator de escala SML (#535)\natualizações de dependências",
+				"nl": "adapterkern bijwerken\nfout in SML-decoder oplossen\n2 nieuwe SML-schaalfactorcodes toevoegen (#535)\nbijwerken van afhankelijkheden",
+				"fr": "mettre à jour le noyau de l'adaptateur\ncorriger l'erreur dans le décodeur SML\najouter 2 nouveaux codes de facteur d'échelle SML (#535)\nmises à jour des dépendances",
+				"it": "aggiornare il core dell'adattatore\ncorreggere l'errore nel decodificatore SML\naggiungere 2 nuovi codici del fattore di scala SML (#535)\naggiornamenti delle dipendenze",
+				"es": "actualizar el núcleo del adaptador\ncorregir el error en el decodificador SML\nagregar 2 nuevos códigos de factor de escala SML (#535)\nactualizaciones de dependencias",
+				"pl": "aktualizacja rdzenia adaptera\nnapraw błąd w dekoderze SML\ndodaj 2 nowe kody współczynnika skali SML (#535)\naktualizacje zależności",
+				"uk": "оновлення ядра адаптера\nвиправлення помилки в декодері SML\nдодати 2 нових коди масштабування SML (#535)\nоновлення залежностей",
+				"zh-cn": "更新适配器核心\n修复SML解码器中的错误\n添加2个新的SML比例因子代码 (#535)\n依赖项更新"
 			},
-			"3.4.0": {
-				"en": "add mode for local poll of Pulse data (#201)",
-				"de": "Modus für lokale Abfrage von Pulse Daten hinzufügen (#201)",
-				"ru": "добавить режим для локального опроса данных Pulse (#201)",
-				"pt": "adicionar modo para sondagem local de dados Pulse (#201)",
-				"nl": "modus toevoegen voor lokale polling van Pulse data (#201)",
-				"fr": "ajouter un mode pour le sondage local des données Pulse (#201)",
-				"it": "aggiungere una modalità per il sondaggio locale dei dati Pulse (#201)",
-				"es": "añadir modo para sondeo local de datos Pulse (#201)",
-				"pl": "dodaj tryb lokalnego sondowania danych Pulse (#201)",
-				"uk": "додати режим для локального опитування даних Pulse (#201)",
-				"zh-cn": "添加本地轮询 Pulse 数据模式 (#201)"
+			"3.4.10": {
+				"en": "add verification of poll interval (#518)\nbump date-fns to 4.0.0",
+				"de": "Überprüfung des Polling-Intervalls hinzufügen (#518)\ndate-fns auf 4.0.0 aktualisieren",
+				"ru": "добавить проверку интервала опроса (#518)\nобновить date-fns до 4.0.0",
+				"pt": "adicionar verificação do intervalo de polling (#518)\natualizar date-fns para 4.0.0",
+				"nl": "verificatie van het polling-interval toevoegen (#518)\ndate-fns bijwerken naar 4.0.0",
+				"fr": "ajouter la vérification de l'intervalle de sondage (#518)\nmettre à jour date-fns vers 4.0.0",
+				"it": "aggiungere la verifica dell'intervallo di polling (#518)\naggiornare date-fns a 4.0.0",
+				"es": "añadir verificación del intervalo de sondeo (#518)\nactualizar date-fns a 4.0.0",
+				"pl": "dodano weryfikację interwału sondowania (#518)\naktualizacja date-fns do wersji 4.0.0",
+				"uk": "додано перевірку інтервалу опитування (#518)\nоновлення date-fns до 4.0.0",
+				"zh-cn": "添加轮询间隔验证 (#518)\n将 date-fns 升级到 4.0.0"
 			}
 		},
 		"messages": [
-			{
-				"condition": {
-					"operand": "and",
-					"rules": ["oldVersion<0.3.0", "newVersion>=0.3.0"]
-				},
-				"title": {
-					"en": "Important notice!",
-					"de": "Wichtiger Hinweis!",
-					"ru": "Важное замечание!",
-					"pt": "Notícia importante!",
-					"nl": "Belangrijke mededeling!",
-					"fr": "Avis important!",
-					"it": "Avviso IMPORTANTE!",
-					"es": "Noticia importante!",
-					"pl": "Ważna uwaga!",
-					"uk": "Погода!",
-					"zh-cn": "重要通知!"
-				},
-				"text": {
-					"en": "Configuration of Pulse live data feed has changed!! You have to reenable it in the configuration! Now you can enable or disable for each Home.",
-					"de": "Die Konfiguration des Pulse Live-Datenfeeds hat sich geändert! Sie müssen es in der Konfiguration wieder aktivieren! Jetzt können Sie für jedes Zuhause aktivieren oder deaktivieren.",
-					"ru": "Конфигурация базы данных Pulse изменилась! Вы должны восстановить его в конфигурации! Теперь вы можете включить или отключить для каждого дома.",
-					"pt": "A configuração do feed de dados ao vivo do Pulse mudou! Você tem que reenable-lo na configuração! Agora você pode ativar ou desativar para cada casa.",
-					"nl": "Vermomming van Pulse live gegevens is veranderd! Je moet het vergoeden in het vertrouwen. Nu kun je in staat zijn voor elk huis.",
-					"fr": "Configuration du flux de données en direct Pulse a changé! Vous devez le réactiver dans la configuration ! Maintenant, vous pouvez activer ou désactiver pour chaque Maison.",
-					"it": "La configurazione dell'alimentazione dei dati live Pulse è cambiata! Devi riattivarlo nella configurazione! Ora è possibile attivare o disattivare per ogni casa.",
-					"es": "¡La configuración de los datos de Pulse en vivo ha cambiado! ¡Tienes que volver a habilitarlo en la configuración! Ahora usted puede habilitar o desactivar para cada hogar.",
-					"pl": "Zmiana danych na żywo została zmieniona. Zrezygnujesz go w konfiguracji! Teraz możesz umieścić lub uwolnić każdy dom.",
-					"uk": "Настроювання імпульсних живих даних змінено! Ви повинні змінити його в конфігурації! Тепер ви можете ввімкнути або вимкнути для кожного будинку.",
-					"zh-cn": "皮尔西人生活数据集成已改变! 你们必须把它重新纳入组合! 现在,你可以为每一个家庭提供或可分割的东西。."
-				},
-				"level": "warn",
-				"buttons": ["agree", "cancel"]
-			},
-			{
-				"condition": {
-					"operand": "and",
-					"rules": ["oldVersion<1.8.0", "newVersion>=1.8.0"]
-				},
-				"title": {
-					"en": "Important notice!",
-					"de": "Wichtiger Hinweis!",
-					"ru": "Важное замечание!",
-					"pt": "Notícia importante!",
-					"nl": "Belangrijke mededeling!",
-					"fr": "Avis important!",
-					"it": "Avviso IMPORTANTE!",
-					"es": "Noticia importante!",
-					"pl": "Ważna uwaga!",
-					"uk": "Погода!",
-					"zh-cn": "重要通知!"
-				},
-				"text": {
-					"en": "Configuration of adapter has changed!! Please verify your settings for Tibber price data poll. And save the settings!!",
-					"de": "Die Konfiguration des Adapters wurde geändert!! Überprüfen Sie bitte Ihre Einstellungen für die Tibber-Preisdatenabfrage. Und speichern Sie die Einstellungen!!",
-					"ru": "Конфигурация адаптера была изменена!! Пожалуйста, проверьте ваши настройки для опроса ценовых данных Tibber. И сохраните настройки!!",
-					"pt": "A configuração do adaptador foi alterada!! Por favor, verifique suas configurações para a pesquisa de dados de preços do Tibber. E salve as configurações!!",
-					"nl": "De configuratie van de adapter is gewijzigd!! Controleer alstublieft uw instellingen voor de Tibber-prijsgegevens poll. En sla de instellingen op!!",
-					"fr": "La configuration de l'adaptateur a été modifiée!! Veuillez vérifier vos paramètres pour l'interrogation des données de prix Tibber. Et sauvegardez les paramètres!!",
-					"it": "La configurazione dell'adattatore è stata modificata!! Verifica le tue impostazioni per l'interrogazione dei dati sui prezzi di Tibber. E salva le impostazioni!!",
-					"es": "¡¡La configuración del adaptador ha cambiado!! Por favor, verifique sus ajustes para la consulta de datos de precios de Tibber. ¡Y guarde la configuración!!",
-					"pl": "Konfiguracja adaptera została zmieniona!! Proszę sprawdzić ustawienia dla sondowania danych cenowych Tibber. I zapisać ustawienia!!",
-					"uk": "Конфігурація адаптера була змінена!! Будь ласка, перевірте ваші налаштування для опитування цінових даних Tibber. І збережіть налаштування!!"
-				},
-				"level": "warn",
-				"buttons": ["agree", "cancel"]
-			},
 			{
 				"condition": {
 					"operand": "and",
@@ -226,7 +159,6 @@
 		},
 		"authors": ["Hombach <TibberLink@homba.ch>"],
 		"keywords": ["power", "energy", "Tibber"],
-		"tier": 2,
 		"licenseInformation": {
 			"license": "GPL-3.0-only",
 			"type": "free"
@@ -234,9 +166,10 @@
 		"platform": "Javascript/Node.js",
 		"icon": "tibberlink.png",
 		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/Hombach/ioBroker.tibberlink/main/admin/tibberlink.png",
-		"readme": "https://github.com/Hombach/ioBroker.tibberlink/blob/main/README.md",
+		"extIcon": "https://raw.githubusercontent.com/Hombach/ioBroker.tibberlink/master/admin/tibberlink.png",
+		"readme": "https://github.com/Hombach/ioBroker.tibberlink/blob/master/README.md",
 		"loglevel": "info",
+		"tier": 2,
 		"mode": "daemon",
 		"messagebox": true,
 		"allowInit": true,
@@ -254,7 +187,7 @@
 		],
 		"globalDependencies": [
 			{
-				"admin": ">=5.1.28"
+				"admin": ">=7.0.0"
 			}
 		],
 		"plugins": {
@@ -299,7 +232,8 @@
 				"puName": "Pulse Local",
 				"tibberBridgeUrl": "tibber-host",
 				"tibberBridgePassword": "xxxx-xxxx",
-				"tibberPulseLocalNodeId": 1
+				"tibberPulseLocalNodeId": 1,
+				"tibberBridgeRawDataInterval": 2000
 			}
 		]
 	},
@@ -314,6 +248,19 @@
 			"native": {}
 		},
 		{
+			"_id": "info.connection",
+			"type": "state",
+			"common": {
+				"role": "indicator.connected",
+				"name": "Device or service connected",
+				"type": "boolean",
+				"read": true,
+				"write": false,
+				"def": false
+			},
+			"native": {}
+		},
+		{
 			"_id": "info.LastSentryLogDay",
 			"type": "state",
 			"common": {
@@ -324,19 +271,6 @@
 				"read": true,
 				"write": false,
 				"def": 0
-			},
-			"native": {}
-		},
-		{
-			"_id": "info.connection",
-			"type": "state",
-			"common": {
-				"role": "indicator.connected",
-				"name": "Device or service connected",
-				"type": "boolean",
-				"read": true,
-				"write": false,
-				"def": false
 			},
 			"native": {}
 		}

@@ -8,8 +8,9 @@ exports.isArray = isArray;
 exports.translateText = translateText;
 const axios_1 = __importDefault(require("axios"));
 /**
- * Tests whether the given variable is a real object and not an Array
- * @param it The variable to test
+ * Tests whether the given variable is a real object and not an Array.
+ *
+ * @param it The variable to test.
  */
 function isObject(it) {
     // This is necessary because:
@@ -20,15 +21,18 @@ function isObject(it) {
 }
 /**
  * Tests whether the given variable is really an Array
+ *
  * @param it The variable to test
  */
 function isArray(it) {
-    if (Array.isArray != null)
+    if (Array.isArray != null) {
         return Array.isArray(it);
+    }
     return Object.prototype.toString.call(it) === "[object Array]";
 }
 /**
  * Translates text using the Google Translate API
+ *
  * @param text The text to translate
  * @param targetLang The target languate
  * @param yandexApiKey The yandex API key. You can create one for free at https://translate.yandex.com/developers
@@ -43,12 +47,12 @@ async function translateText(text, targetLang, yandexApiKey) {
     if (yandexApiKey) {
         return translateYandex(text, targetLang, yandexApiKey);
     }
-    else {
-        return translateGoogle(text, targetLang);
-    }
+    return "DISABLED";
+    //return translateGoogle(text, targetLang);
 }
 /**
  * Translates text with Yandex API
+ *
  * @param text The text to translate
  * @param targetLang The target languate
  * @param apiKey The yandex API key. You can create one for free at https://translate.yandex.com/developers
@@ -67,31 +71,6 @@ async function translateYandex(text, targetLang, apiKey) {
     }
     catch (e) {
         throw new Error(`Could not translate to "${targetLang}": ${e}`);
-    }
-}
-/**
- * Translates text with Google API
- * @param text The text to translate
- * @param targetLang The target languate
- */
-async function translateGoogle(text, targetLang) {
-    try {
-        // prettier-ignore
-        const url = `http://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}&ie=UTF-8&oe=UTF-8`;
-        const response = await axios_1.default.request({ url, timeout: 15000 });
-        if (isArray(response.data)) {
-            // we got a valid response
-            return response.data[0][0][0];
-        }
-        throw new Error(`Invalid response for translate request`);
-    }
-    catch (e) {
-        if (e.response?.status === 429) {
-            throw new Error(`Could not translate to "${targetLang}": Rate-limited by Google Translate`);
-        }
-        else {
-            throw new Error(`Could not translate to "${targetLang}": ${e}`);
-        }
     }
 }
 //# sourceMappingURL=tools.js.map

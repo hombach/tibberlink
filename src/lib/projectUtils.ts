@@ -1,4 +1,4 @@
-import * as utils from "@iobroker/adapter-core";
+import type * as utils from "@iobroker/adapter-core";
 
 export enum enCalcType {
 	BestCost = 1,
@@ -11,6 +11,11 @@ export enum enCalcType {
 	//BestCostMaxHours = 8,
 }
 
+/**
+ * getCalcTypeDescription
+ *
+ * @param calcType - ID of calculator channel type
+ */
 export function getCalcTypeDescription(calcType: enCalcType): string {
 	switch (calcType) {
 		case enCalcType.BestCost:
@@ -34,35 +39,35 @@ export function getCalcTypeDescription(calcType: enCalcType): string {
 	}
 }
 
+/**
+ * Information about a home configuration.
+ */
 export interface IHomeInfo {
+	/** Unique identifier for the home. */
 	ID: string;
+	/** Display name of the home in the app. */
 	NameInApp: string;
+	/** Whether real-time updates are enabled. */
 	RealTime: boolean;
+	/** Whether the home feed is active. */
 	FeedActive: boolean;
+	/** Whether price data polling is active. */
 	PriceDataPollActive: boolean;
 }
 
-export class TibberHelper {
+/**
+ * ProjectUtils
+ */
+export class ProjectUtils {
 	adapter: utils.AdapterInstance;
 
+	/**
+	 * constructor
+	 *
+	 * @param adapter - ioBroker adapter instance
+	 */
 	constructor(adapter: utils.AdapterInstance) {
 		this.adapter = adapter;
-	}
-
-	protected getStatePrefix(homeId: string, space: string, id: string, name?: string): { [key: string]: string } {
-		const statePrefix = {
-			key: name ? name : id,
-			value: `Homes.${homeId}.${space}.${id}`,
-		};
-		return statePrefix;
-	}
-
-	protected getStatePrefixLocal(pulse: number, id: string, name?: string): { [key: string]: string } {
-		const statePrefix = {
-			key: name ? name : id,
-			value: `LocalPulse.${pulse}.${id}`,
-		};
-		return statePrefix;
 	}
 
 	/**
@@ -71,7 +76,7 @@ export class TibberHelper {
 	 * @param stateName - A string representing the name of the state to retrieve.
 	 * @returns A Promise that resolves with the value of the state if it exists, otherwise resolves with null.
 	 */
-	protected async getStateValue(stateName: string): Promise<any | null> {
+	protected async getStateValue(stateName: string): Promise<any> {
 		try {
 			const stateObject = await this.getState(stateName);
 			return stateObject?.val ?? null; // errors have already been handled in getState()
@@ -87,16 +92,15 @@ export class TibberHelper {
 	 * @param stateName - A string representing the name of the state to retrieve.
 	 * @returns A Promise that resolves with the object of the state if it exists, otherwise resolves with null.
 	 */
-	private async getState(stateName: string): Promise<any> {
+	private async getState(stateName: string): Promise<ioBroker.State | null> {
 		try {
 			if (await this.verifyStateAvailable(stateName)) {
 				// Get state value, so like: {val: false, ack: true, ts: 1591117034451, �}
 				const stateValueObject = await this.adapter.getStateAsync(stateName);
 				if (!this.isLikeEmpty(stateValueObject)) {
 					return stateValueObject;
-				} else {
-					throw `Unable to retrieve info from state '${stateName}'.`;
 				}
+				throw new Error(`Unable to retrieve info from state '${stateName}'.`);
 			}
 		} catch (error) {
 			this.adapter.log.error(`[asyncGetState](${stateName}): ${error}`);
@@ -110,13 +114,58 @@ export class TibberHelper {
 	 * @param stateName - A string representing the name of the state to verify.
 	 * @returns A Promise that resolves with true if the state exists, otherwise resolves with false.
 	 */
-	private async verifyStateAvailable(stateName: string): Promise<any> {
+	private async verifyStateAvailable(stateName: string): Promise<boolean> {
 		const stateObject = await this.adapter.getObjectAsync(stateName); // Check state existence
 		if (!stateObject) {
 			this.adapter.log.debug(`[verifyStateAvailable](${stateName}): State does not exist.`);
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Get foreign state value
+	 *
+	 * @param stateName - Full path to state, like 0_userdata.0.other.isSummer
+	 * @returns State value, or null if error
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+	async asyncGetForeignStateVal(stateName: string): Promise<any | null> {
+		try {
+			const stateObject = await this.asyncGetForeignState(stateName);
+			if (stateObject == null) {
+				return null;
+			} // errors thrown already in asyncGetForeignState()
+			return stateObject.val;
+		} catch (error) {
+			this.adapter.log.error(`[asyncGetForeignStateValue](${stateName}): ${error}`);
+			return null;
+		}
+	}
+
+	/**
+	 * Get foreign state
+	 *
+	 * @param stateName - Full path to state, like 0_userdata.0.other.isSummer
+	 * @returns State object: {val: false, ack: true, ts: 1591117034451, …}, or null if error
+	 */
+	private async asyncGetForeignState(stateName: string): Promise<ioBroker.State | null | undefined> {
+		try {
+			const stateObject = await this.adapter.getForeignObjectAsync(stateName); // Check state existence
+			if (!stateObject) {
+				throw new Error(`State '${stateName}' does not exist.`);
+			} else {
+				// Get state value, so like: {val: false, ack: true, ts: 1591117034451, …}
+				const stateValueObject = await this.adapter.getForeignStateAsync(stateName);
+				if (!this.isLikeEmpty(stateValueObject)) {
+					return stateValueObject;
+				}
+				throw new Error(`Unable to retrieve info from state '${stateName}'.`);
+			}
+		} catch (error) {
+			this.adapter.log.error(`[asyncGetForeignState](${stateName}): ${error}`);
+			return null;
+		}
 	}
 
 	/**
@@ -140,18 +189,16 @@ export class TibberHelper {
 			sTemp = sTemp.replace(/\}+/g, ""); // remove all >}<
 			if (sTemp !== "") {
 				return false;
-			} else {
-				return true;
 			}
-		} else {
 			return true;
 		}
+		return true;
 	}
 
 	/**
 	 * Checks if a string state exists, creates it if necessary, and updates its value.
 	 *
-	 * @param stateName - An object containing the key and value for the name of the state.
+	 * @param stateName - A string representing the name of the state.
 	 * @param value - The string value to set for the state.
 	 * @param description - Optional description for the state (default is "-").
 	 * @param writeable - Optional boolean indicating if the state should be writeable (default is false).
@@ -160,17 +207,17 @@ export class TibberHelper {
 	 * @returns A Promise that resolves when the state is checked, created (if necessary), and updated.
 	 */
 	protected async checkAndSetValue(
-		stateName: { [key: string]: string },
+		stateName: string,
 		value: string,
-		description: string = "-",
-		writeable: boolean = false,
-		dontUpdate: boolean = false,
-		forceMode: boolean = false,
+		description = "-",
+		writeable = false,
+		dontUpdate = false,
+		forceMode = false,
 	): Promise<void> {
 		if (value != undefined) {
 			if (value.trim().length > 0) {
 				const commonObj: ioBroker.StateCommon = {
-					name: stateName.key,
+					name: stateName.split(".").pop(),
 					type: "string",
 					role: "text",
 					desc: description,
@@ -178,20 +225,20 @@ export class TibberHelper {
 					write: writeable,
 				};
 				if (!forceMode) {
-					await this.adapter.setObjectNotExistsAsync(stateName.value, {
+					await this.adapter.setObjectNotExistsAsync(stateName, {
 						type: "state",
 						common: commonObj,
 						native: {},
 					});
 				} else {
-					await this.adapter.setObjectAsync(stateName.value, {
+					await this.adapter.setObjectAsync(stateName, {
 						type: "state",
 						common: commonObj,
 						native: {},
 					});
 				}
-				if (!dontUpdate || (await this.adapter.getStateAsync(stateName.value)) === null) {
-					await this.adapter.setStateAsync(stateName.value, { val: value, ack: true });
+				if (!dontUpdate || (await this.adapter.getStateAsync(stateName)) === null) {
+					await this.adapter.setState(stateName, { val: value, ack: true });
 				}
 			}
 		}
@@ -200,7 +247,7 @@ export class TibberHelper {
 	/**
 	 * Checks if a number state exists, creates it if necessary, and updates its value.
 	 *
-	 * @param stateName - An object containing the key and value for the name of the state.
+	 * @param stateName - A string representing the name of the state.
 	 * @param value - The number value to set for the state.
 	 * @param description - Optional description for the state (default is "-").
 	 * @param unit - Optional unit string to set for the state (default is undefined).
@@ -210,17 +257,17 @@ export class TibberHelper {
 	 * @returns A Promise that resolves when the state is checked, created (if necessary), and updated.
 	 */
 	protected async checkAndSetValueNumber(
-		stateName: { [key: string]: string },
+		stateName: string,
 		value: number,
-		description: string = "-",
+		description = "-",
 		unit?: string,
-		writeable: boolean = false,
-		dontUpdate: boolean = false,
-		forceMode: boolean = false,
+		writeable = false,
+		dontUpdate = false,
+		forceMode = false,
 	): Promise<void> {
-		if (value || value === 0) {
+		if (value !== undefined) {
 			const commonObj: ioBroker.StateCommon = {
-				name: stateName.key,
+				name: stateName.split(".").pop(),
 				type: "number",
 				role: "value",
 				desc: description,
@@ -232,21 +279,21 @@ export class TibberHelper {
 				commonObj.unit = unit;
 			}
 			if (!forceMode) {
-				await this.adapter.setObjectNotExistsAsync(stateName.value, {
+				await this.adapter.setObjectNotExistsAsync(stateName, {
 					type: "state",
 					common: commonObj,
 					native: {},
 				});
 			} else {
-				await this.adapter.setObjectAsync(stateName.value, {
+				await this.adapter.setObjectAsync(stateName, {
 					type: "state",
 					common: commonObj,
 					native: {},
 				});
 			}
 
-			if (!dontUpdate || (await this.adapter.getStateAsync(stateName.value)) === null) {
-				await this.adapter.setStateAsync(stateName.value, { val: value, ack: true });
+			if (!dontUpdate || (await this.adapter.getStateAsync(stateName)) === null) {
+				await this.adapter.setState(stateName, { val: value, ack: true });
 			}
 		}
 	}
@@ -254,23 +301,25 @@ export class TibberHelper {
 	/**
 	 * Checks if a boolean state exists, creates it if necessary, and updates its value.
 	 *
-	 * @param stateName - An object containing the key and value for the name of the state.
+	 * @param stateName - A string representing the name of the state.
 	 * @param value - The boolean value to set for the state.
 	 * @param description - Optional description for the state (default is "-").
 	 * @param writeable - Optional boolean indicating if the state should be writeable (default is false).
 	 * @param dontUpdate - Optional boolean indicating if the state should not be updated if it already exists (default is false).
+	 * @param forceMode - Optional boolean indicating if the state should be overwritten if it already exists (default is false).
 	 * @returns A Promise that resolves when the state is checked, created (if necessary), and updated.
 	 */
 	protected async checkAndSetValueBoolean(
-		stateName: { [key: string]: string },
+		stateName: string,
 		value: boolean,
-		description: string = "-",
-		writeable: boolean = false,
-		dontUpdate: boolean = false,
+		description = "-",
+		writeable = false,
+		dontUpdate = false,
+		forceMode = false,
 	): Promise<void> {
 		if (value !== undefined && value !== null) {
 			const commonObj: ioBroker.StateCommon = {
-				name: stateName.key,
+				name: stateName.split(".").pop(),
 				type: "boolean",
 				role: "indicator",
 				desc: description,
@@ -278,22 +327,22 @@ export class TibberHelper {
 				write: writeable,
 			};
 
-			if (stateName.value.split(".").pop() === stateName.key) {
-				await this.adapter.setObjectNotExistsAsync(stateName.value, {
+			if (!forceMode) {
+				await this.adapter.setObjectNotExistsAsync(stateName, {
 					type: "state",
 					common: commonObj,
 					native: {},
 				});
 			} else {
-				await this.adapter.setObjectAsync(stateName.value, {
+				await this.adapter.setObjectAsync(stateName, {
 					type: "state",
 					common: commonObj,
 					native: {},
 				});
 			}
-			// Update the state value if not in don't update mode or the state does not exist
-			if (!dontUpdate || (await this.adapter.getStateAsync(stateName.value)) === null) {
-				await this.adapter.setStateAsync(stateName.value, { val: value, ack: true });
+
+			if (!dontUpdate || (await this.adapter.getStateAsync(stateName)) === null) {
+				await this.adapter.setState(stateName, { val: value, ack: true });
 			}
 		}
 	}
@@ -311,7 +360,9 @@ export class TibberHelper {
 		if (error.errors && Array.isArray(error.errors)) {
 			// Iterate over the array of errors and concatenate their messages
 			for (const err of error.errors) {
-				if (errorMessages) errorMessages += ", ";
+				if (errorMessages) {
+					errorMessages += ", ";
+				}
 				errorMessages += err.message;
 			}
 		} else if (error.message) {

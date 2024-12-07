@@ -1,20 +1,15 @@
 // The adapter-core module gives you access to the core ioBroker functions you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
 import { CronJob } from "cron";
-import { format } from "date-fns";
-import { IConfig } from "tibber-api";
+import { addDays, differenceInDays, format, isSameDay, parseISO } from "date-fns";
+import type { IConfig } from "tibber-api";
+import type { IHomeInfo } from "./lib/projectUtils";
 import { TibberAPICaller } from "./lib/tibberAPICaller";
 import { TibberCalculator } from "./lib/tibberCalculator";
-import { IHomeInfo } from "./lib/tibberHelper";
 import { TibberLocal } from "./lib/tibberLocal";
 import { TibberPulse } from "./lib/tibberPulse";
 
 class Tibberlink extends utils.Adapter {
-	cronList: CronJob[];
-	homeInfoList: IHomeInfo[] = [];
-	queryUrl: string = "";
-	tibberCalculator = new TibberCalculator(this);
-
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
 			...options,
@@ -30,6 +25,11 @@ class Tibberlink extends utils.Adapter {
 		this.queryUrl = "https://api.tibber.com/v1-beta/gql";
 	}
 
+	private cronList: CronJob[];
+	private homeInfoList: IHomeInfo[] = [];
+	private queryUrl = "";
+	private tibberCalculator = new TibberCalculator(this);
+
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
@@ -38,7 +38,7 @@ class Tibberlink extends utils.Adapter {
 		if (!this.config.TibberAPIToken) {
 			// No Token defined in configuration
 			this.log.error(`Missing API Token - please check configuration`);
-			this.setState(`info.connection`, false, true);
+			void this.setState(`info.connection`, false, true);
 		} else {
 			// Need 2 configs - API and Feed (feed changed query url)
 			const tibberConfigAPI: IConfig = {
@@ -46,7 +46,7 @@ class Tibberlink extends utils.Adapter {
 				apiEndpoint: {
 					apiKey: this.config.TibberAPIToken,
 					queryUrl: this.queryUrl,
-					userAgent: `${this.config.TibberAPIToken.slice(5, 20).split("").reverse().join("")}${Date.now}`,
+					userAgent: `${this.config.TibberAPIToken.slice(5, 20).split("").reverse().join("")}${Date.now()}`,
 				},
 			};
 			// Now read homes list from API
@@ -59,14 +59,14 @@ class Tibberlink extends utils.Adapter {
 						//set data in homeinfolist according to config data
 						const result: any[] = [];
 						for (const home of this.config.HomesList) {
-							const matchingHomeInfo = this.homeInfoList.find((info) => info.ID === home.homeID);
+							const matchingHomeInfo = this.homeInfoList.find(info => info.ID === home.homeID);
 							if (!matchingHomeInfo) {
 								this.log.error(
 									`Configured feed for Home ID: ${home.homeID} not found in current data from Tibber server - delete the configuration line or verify any faults in your Tibber connection`,
 								);
 								continue;
 							}
-							if (result.some((info) => info.ID === matchingHomeInfo.ID)) {
+							if (result.some(info => info.ID === matchingHomeInfo.ID)) {
 								this.log.warn(
 									`Double configuration of Home ID: ${home.homeID} found - please remove obsolete line in config - data of first instance will be used`,
 								);
@@ -76,12 +76,12 @@ class Tibberlink extends utils.Adapter {
 							matchingHomeInfo.PriceDataPollActive = home.priceDataPollActive;
 							result.push(matchingHomeInfo);
 						}
-						for (const index in this.homeInfoList) {
+						for (const homeInfo of this.homeInfoList) {
 							this.log.debug(
-								`Feed Config for Home: ${this.homeInfoList[index].NameInApp} (${this.homeInfoList[index].ID}) - realtime data available: ${this.homeInfoList[index].RealTime} - feed configured as active: ${this.homeInfoList[index].FeedActive}`,
+								`Feed Config for Home: ${homeInfo.NameInApp} (${homeInfo.ID}) - realtime data available: ${homeInfo.RealTime} - feed configured as active: ${homeInfo.FeedActive}`,
 							);
 							this.log.debug(
-								`Price Poll Config for Home: ${this.homeInfoList[index].NameInApp} (${this.homeInfoList[index].ID}) - poll configured as active: ${this.homeInfoList[index].PriceDataPollActive}`,
+								`Price Poll Config for Home: ${homeInfo.NameInApp} (${homeInfo.ID}) - poll configured as active: ${homeInfo.PriceDataPollActive}`,
 							);
 						}
 					}
@@ -90,17 +90,17 @@ class Tibberlink extends utils.Adapter {
 						`No configuration of Tibber Pulse feeds found! Please configure to get live data - or configure your home(s) to discard live data`,
 					);
 				}
-			} catch (error: any) {
+			} catch (error: unknown) {
 				this.log.error(tibberAPICaller.generateErrorMessage(error, `pull of homes from Tibber-Server`));
 			}
 
 			// if feed is not used - set info.connection if data received
-			if (this.config.HomesList?.every((info) => !info.feedActive)) {
+			if (this.config.HomesList?.every(info => !info.feedActive)) {
 				if (this.homeInfoList.length > 0) {
-					this.setState("info.connection", true, true);
+					void this.setState("info.connection", true, true);
 					this.log.debug(`Connection Check: Feed not enabled and I received home list from api - good connection`);
 				} else {
-					this.setState("info.connection", false, true);
+					void this.setState("info.connection", false, true);
 					this.log.debug(`Connection Check: Feed not enabled and I do not get home list from api - bad connection`);
 				}
 			}
@@ -110,9 +110,13 @@ class Tibberlink extends utils.Adapter {
 				const sentryInstance = this.getPluginInstance("sentry");
 				const today = new Date();
 				const last = await this.getStateAsync("info.LastSentryLogDay");
+				const lastDate = last?.val ? parseISO(last.val as string) : null;
 				const pulseLocal = this.config.UseLocalPulseData ? 1 : 0;
-				if (last?.val != (await today.getDate())) {
-					await this.tibberCalculator.updateCalculatorUsageStats();
+
+				// Verify if 3 or more days in the past
+				if (!lastDate || differenceInDays(today, lastDate) >= 3) {
+					// WiP 4.0.0 if (last?.val != today.getDate()) {
+					this.tibberCalculator.updateCalculatorUsageStats();
 					if (sentryInstance) {
 						const Sentry = sentryInstance.getSentryObject();
 						Sentry &&
@@ -128,11 +132,10 @@ class Tibberlink extends utils.Adapter {
 								scope.setTag("numBestSingleHours", this.tibberCalculator.numBestSingleHours);
 								scope.setTag("numBestSingleHoursLTF", this.tibberCalculator.numBestSingleHoursLTF);
 								scope.setTag("numSmartBatteryBuffer", this.tibberCalculator.numSmartBatteryBuffer);
-								//scope.setTag("usedAdminAdapter", version);
-								Sentry.captureMessage("Adapter TibberLink started", "info"); // Level "info"
+								Sentry.captureMessage("Adapter TibberLink started", "info");
 							});
 					}
-					this.setStateAsync("info.LastSentryLogDay", { val: today.getDate(), ack: true });
+					void this.setState("info.LastSentryLogDay", { val: today.getDate(), ack: true });
 				}
 			}
 
@@ -154,7 +157,7 @@ class Tibberlink extends utils.Adapter {
 						for (const channel in this.config.CalculatorList) {
 							await tibberCalculator.setupCalculatorStates(this.config.CalculatorList[channel].chHomeID, parseInt(channel));
 						}
-					} catch (error: any) {
+					} catch (error: unknown) {
 						this.log.warn(tibberAPICaller.generateErrorMessage(error, `setup of calculator states`));
 					}
 				}
@@ -166,25 +169,25 @@ class Tibberlink extends utils.Adapter {
 					try {
 						this.log.info(`Setting up local poll of consumption data for ${this.config.PulseList.length} pulse module(s)`);
 						for (const pulse in this.config.PulseList) {
-							await tibberLocal.setupOnePulseLocal(parseInt(pulse));
+							tibberLocal.setupOnePulseLocal(parseInt(pulse));
 						}
-					} catch (error: any) {
+					} catch (error: unknown) {
 						this.log.warn(tibberAPICaller.generateErrorMessage(error, `setup of local Pulse data poll`));
 					}
 				}
 				//Local Bridge Call
 
 				// (force) get current prices and start calculator tasks once for the FIRST time
-				if (!(await tibberAPICaller.updateCurrentPriceAllHomes(this.homeInfoList, true))) {
-				}
-				this.jobPricesTodayLOOP(tibberAPICaller);
-				this.jobPricesTomorrowLOOP(tibberAPICaller);
-				tibberCalculator.startCalculatorTasks(false, true);
+				await tibberAPICaller.updateCurrentPriceAllHomes(this.homeInfoList, true);
+
+				void this.jobPricesTodayLOOP(tibberAPICaller);
+				void this.jobPricesTomorrowLOOP(tibberAPICaller);
+				void tibberCalculator.startCalculatorTasks(false, true);
 				// Get consumption data for the first time
-				tibberAPICaller.updateConsumptionAllHomes();
+				void tibberAPICaller.updateConsumptionAllHomes();
 
 				const jobCurrentPrice = CronJob.from({
-					cronTime: "20 57 * * * *", //"20 57 * * * *" = 3 minuten vor 00:00:20 jede Stunde
+					cronTime: "20 57 * * * *", //"20 58 * * * *" = 2 minutes before 00:00:20 jede Stunde => 00:01:20 - 00:03:20
 					onTick: async () => {
 						let okPrice = false;
 						do {
@@ -192,35 +195,39 @@ class Tibberlink extends utils.Adapter {
 							okPrice = await tibberAPICaller.updateCurrentPriceAllHomes(this.homeInfoList);
 							this.log.debug(`Cron job CurrentPrice - okPrice: ${okPrice}`);
 						} while (!okPrice);
-						tibberCalculator.startCalculatorTasks();
-						tibberAPICaller.updateConsumptionAllHomes();
+						void tibberCalculator.startCalculatorTasks();
+						void tibberAPICaller.updateConsumptionAllHomes();
 					},
 					start: true,
 					timeZone: "system",
 					runOnInit: false,
 				});
-				if (jobCurrentPrice) this.cronList.push(jobCurrentPrice);
+				if (jobCurrentPrice) {
+					this.cronList.push(jobCurrentPrice);
+				}
 
 				const jobPricesToday = CronJob.from({
-					cronTime: "20 56 23 * * *", //"20 56 23 * * *" = 5 minuten vor 00:01:20
+					cronTime: "20 56 23 * * *", //"20 56 23 * * *" = 5 minutes before 00:01:20 => 00:00:20 - 00:02:20 for first try
 					onTick: async () => {
 						let okPrice = false;
 						do {
 							await this.delay(this.getRandomDelay(4, 6));
+							await tibberAPICaller.updatePricesTomorrowAllHomes(this.homeInfoList);
 							okPrice = await tibberAPICaller.updatePricesTodayAllHomes(this.homeInfoList);
 							this.log.debug(`Cron job PricesToday - okPrice: ${okPrice}`);
 						} while (!okPrice);
-						await tibberAPICaller.updatePricesTomorrowAllHomes(this.homeInfoList);
-						tibberCalculator.startCalculatorTasks();
+						void tibberCalculator.startCalculatorTasks();
 					},
 					start: true,
 					timeZone: "system",
 					runOnInit: true,
 				});
-				if (jobPricesToday) this.cronList.push(jobPricesToday);
+				if (jobPricesToday) {
+					this.cronList.push(jobPricesToday);
+				}
 
 				const jobPricesTomorrow = CronJob.from({
-					cronTime: "20 56 12 * * *", //"20 56 12 * * *" = 5 minuten vor 13:01:20
+					cronTime: "20 56 12 * * *", //"20 56 12 * * *" = 5 minutes before 13:01:20 => 13:00:20 - 13:02:20 for first try
 					onTick: async () => {
 						let okPrice = false;
 						do {
@@ -228,16 +235,18 @@ class Tibberlink extends utils.Adapter {
 							okPrice = await tibberAPICaller.updatePricesTomorrowAllHomes(this.homeInfoList);
 							this.log.debug(`Cron job PricesTomorrow - okPrice: ${okPrice}`);
 						} while (!okPrice);
-						tibberCalculator.startCalculatorTasks();
+						void tibberCalculator.startCalculatorTasks();
 					},
 					start: true,
 					timeZone: "system",
 					runOnInit: true,
 				});
-				if (jobPricesTomorrow) this.cronList.push(jobPricesTomorrow);
+				if (jobPricesTomorrow) {
+					this.cronList.push(jobPricesTomorrow);
+				}
 
 				//#region *** If user uses live feed - start feed connection ***
-				if (this.homeInfoList.some((info) => info.FeedActive)) {
+				if (this.homeInfoList.some(info => info.FeedActive)) {
 					// array with configs of feeds, init with base data set
 					const tibberFeedConfigs: IConfig[] = Array.from({ length: this.homeInfoList.length }, () => {
 						return {
@@ -245,17 +254,18 @@ class Tibberlink extends utils.Adapter {
 							apiEndpoint: {
 								apiKey: this.config.TibberAPIToken,
 								queryUrl: this.queryUrl,
-								userAgent: `${this.config.TibberAPIToken.slice(5, 20).split("").reverse().join("")}${Date.now}`,
+								userAgent: `${this.config.TibberAPIToken.slice(5, 20).split("").reverse().join("")}${Date.now()}`,
 							},
 							timestamp: true,
 						};
 					});
 					const tibberPulseInstances = new Array(this.homeInfoList.length); // array for TibberPulse-instances
 
-					if (!this.homeInfoList.some((homeInfo) => homeInfo.ID == `None available - restart adapter after entering token`)) {
-						this.delObjectAsync(`Homes.None available - restart adapter after entering token`, { recursive: true });
+					if (!this.homeInfoList.some(homeInfo => homeInfo.ID == `None available - restart adapter after entering token`)) {
+						await this.delObjectAsync(`Homes.None available - restart adapter after entering token`, { recursive: true });
 					}
 
+					// eslint-disable-next-line @typescript-eslint/no-for-in-array
 					for (const index in this.homeInfoList) {
 						if (!this.homeInfoList[index].FeedActive || !this.homeInfoList[index].RealTime) {
 							this.log.warn(`skipping feed of live data - no Pulse configured for this home according to Tibber server`);
@@ -266,29 +276,75 @@ class Tibberlink extends utils.Adapter {
 							// define the fields for datafeed
 							tibberFeedConfigs[index].homeId = this.homeInfoList[index].ID;
 							tibberFeedConfigs[index].power = true;
-							if (this.config.FeedConfigLastMeterConsumption) tibberFeedConfigs[index].lastMeterConsumption = true;
-							if (this.config.FeedConfigAccumulatedConsumption) tibberFeedConfigs[index].accumulatedConsumption = true;
-							if (this.config.FeedConfigAccumulatedProduction) tibberFeedConfigs[index].accumulatedProduction = true;
-							if (this.config.FeedConfigAccumulatedConsumptionLastHour) tibberFeedConfigs[index].accumulatedConsumptionLastHour = true;
-							if (this.config.FeedConfigAccumulatedProductionLastHour) tibberFeedConfigs[index].accumulatedProductionLastHour = true;
-							if (this.config.FeedConfigAccumulatedCost) tibberFeedConfigs[index].accumulatedCost = true;
-							if (this.config.FeedConfigAccumulatedCost) tibberFeedConfigs[index].accumulatedReward = true;
-							if (this.config.FeedConfigCurrency) tibberFeedConfigs[index].currency = true;
-							if (this.config.FeedConfigMinPower) tibberFeedConfigs[index].minPower = true;
-							if (this.config.FeedConfigAveragePower) tibberFeedConfigs[index].averagePower = true;
-							if (this.config.FeedConfigMaxPower) tibberFeedConfigs[index].maxPower = true;
-							if (this.config.FeedConfigPowerProduction) tibberFeedConfigs[index].powerProduction = true;
-							if (this.config.FeedConfigMinPowerProduction) tibberFeedConfigs[index].minPowerProduction = true;
-							if (this.config.FeedConfigMaxPowerProduction) tibberFeedConfigs[index].maxPowerProduction = true;
-							if (this.config.FeedConfigLastMeterProduction) tibberFeedConfigs[index].lastMeterProduction = true;
-							if (this.config.FeedConfigPowerFactor) tibberFeedConfigs[index].powerFactor = true;
-							if (this.config.FeedConfigVoltagePhase1) tibberFeedConfigs[index].voltagePhase1 = true;
-							if (this.config.FeedConfigVoltagePhase2) tibberFeedConfigs[index].voltagePhase2 = true;
-							if (this.config.FeedConfigVoltagePhase3) tibberFeedConfigs[index].voltagePhase3 = true;
-							if (this.config.FeedConfigCurrentL1) tibberFeedConfigs[index].currentL1 = true;
-							if (this.config.FeedConfigCurrentL2) tibberFeedConfigs[index].currentL2 = true;
-							if (this.config.FeedConfigCurrentL3) tibberFeedConfigs[index].currentL3 = true;
-							if (this.config.FeedConfigSignalStrength) tibberFeedConfigs[index].signalStrength = true;
+							if (this.config.FeedConfigLastMeterConsumption) {
+								tibberFeedConfigs[index].lastMeterConsumption = true;
+							}
+							if (this.config.FeedConfigAccumulatedConsumption) {
+								tibberFeedConfigs[index].accumulatedConsumption = true;
+							}
+							if (this.config.FeedConfigAccumulatedProduction) {
+								tibberFeedConfigs[index].accumulatedProduction = true;
+							}
+							if (this.config.FeedConfigAccumulatedConsumptionLastHour) {
+								tibberFeedConfigs[index].accumulatedConsumptionLastHour = true;
+							}
+							if (this.config.FeedConfigAccumulatedProductionLastHour) {
+								tibberFeedConfigs[index].accumulatedProductionLastHour = true;
+							}
+							if (this.config.FeedConfigAccumulatedCost) {
+								tibberFeedConfigs[index].accumulatedCost = true;
+							}
+							if (this.config.FeedConfigAccumulatedCost) {
+								tibberFeedConfigs[index].accumulatedReward = true;
+							}
+							if (this.config.FeedConfigCurrency) {
+								tibberFeedConfigs[index].currency = true;
+							}
+							if (this.config.FeedConfigMinPower) {
+								tibberFeedConfigs[index].minPower = true;
+							}
+							if (this.config.FeedConfigAveragePower) {
+								tibberFeedConfigs[index].averagePower = true;
+							}
+							if (this.config.FeedConfigMaxPower) {
+								tibberFeedConfigs[index].maxPower = true;
+							}
+							if (this.config.FeedConfigPowerProduction) {
+								tibberFeedConfigs[index].powerProduction = true;
+							}
+							if (this.config.FeedConfigMinPowerProduction) {
+								tibberFeedConfigs[index].minPowerProduction = true;
+							}
+							if (this.config.FeedConfigMaxPowerProduction) {
+								tibberFeedConfigs[index].maxPowerProduction = true;
+							}
+							if (this.config.FeedConfigLastMeterProduction) {
+								tibberFeedConfigs[index].lastMeterProduction = true;
+							}
+							if (this.config.FeedConfigPowerFactor) {
+								tibberFeedConfigs[index].powerFactor = true;
+							}
+							if (this.config.FeedConfigVoltagePhase1) {
+								tibberFeedConfigs[index].voltagePhase1 = true;
+							}
+							if (this.config.FeedConfigVoltagePhase2) {
+								tibberFeedConfigs[index].voltagePhase2 = true;
+							}
+							if (this.config.FeedConfigVoltagePhase3) {
+								tibberFeedConfigs[index].voltagePhase3 = true;
+							}
+							if (this.config.FeedConfigCurrentL1) {
+								tibberFeedConfigs[index].currentL1 = true;
+							}
+							if (this.config.FeedConfigCurrentL2) {
+								tibberFeedConfigs[index].currentL2 = true;
+							}
+							if (this.config.FeedConfigCurrentL3) {
+								tibberFeedConfigs[index].currentL3 = true;
+							}
+							if (this.config.FeedConfigSignalStrength) {
+								tibberFeedConfigs[index].signalStrength = true;
+							}
 							tibberPulseInstances[index] = new TibberPulse(tibberFeedConfigs[index], this); // add new instance to array
 							tibberPulseInstances[index].ConnectPulseStream();
 						} catch (error) {
@@ -303,6 +359,8 @@ class Tibberlink extends utils.Adapter {
 
 	/**
 	 * subfunction to loop till prices today for all homes are got from server - adapter startup-phase
+	 *
+	 * @param tibberAPICaller - TibberAPICaller
 	 */
 	private async jobPricesTodayLOOP(tibberAPICaller: TibberAPICaller): Promise<void> {
 		let okPrice = false;
@@ -315,6 +373,8 @@ class Tibberlink extends utils.Adapter {
 
 	/**
 	 * subfunction to loop till prices tomorrow for all homes are got from server - adapter startup-phase
+	 *
+	 * @param tibberAPICaller - TibberAPICaller
 	 */
 	private async jobPricesTomorrowLOOP(tibberAPICaller: TibberAPICaller): Promise<void> {
 		let okPrice = false;
@@ -333,13 +393,17 @@ class Tibberlink extends utils.Adapter {
 	 * @returns delay - milliseconds as integer
 	 */
 	private getRandomDelay = (minMinutes: number, maxMinutes: number): number => {
-		if (minMinutes >= maxMinutes) throw new Error("minMinutes should be less than maxMinutes");
+		if (minMinutes >= maxMinutes) {
+			throw new Error("minMinutes should be less than maxMinutes");
+		}
 		const randomMinutes = Math.random() * (maxMinutes - minMinutes) + minMinutes;
 		return Math.floor(randomMinutes * 60 * 1000);
 	};
 
 	/**
 	 * Is called from adapter config screen
+	 *
+	 * @param obj - any
 	 */
 	private onMessage(obj: any): void {
 		if (obj) {
@@ -351,7 +415,7 @@ class Tibberlink extends utils.Adapter {
 								this.sendTo(
 									obj.from,
 									obj.command,
-									this.homeInfoList.map((item) => ({
+									this.homeInfoList.map(item => ({
 										label: `${item.NameInApp} (${item.ID})`,
 										value: item.ID,
 									})),
@@ -361,7 +425,7 @@ class Tibberlink extends utils.Adapter {
 								this.log.warn(`No Homes available to config TibberLink`);
 								this.sendTo(obj.from, obj.command, [{ label: "None available", value: "None available" }], obj.callback);
 							}
-						} catch (error) {
+						} catch {
 							this.sendTo(obj.from, obj.command, [{ label: "None available", value: "None available" }], obj.callback);
 						}
 					}
@@ -373,7 +437,7 @@ class Tibberlink extends utils.Adapter {
 								this.sendTo(
 									obj.from,
 									obj.command,
-									this.homeInfoList.map((item) => ({
+									this.homeInfoList.map(item => ({
 										//label: `${item.NameInApp} (${item.ID.substring(item.ID.lastIndexOf("-") + 1)})`,
 										label: `${item.NameInApp} (...${item.ID.slice(-8)})`,
 										value: item.ID,
@@ -384,7 +448,7 @@ class Tibberlink extends utils.Adapter {
 								this.log.warn(`No Homes available to config TibberLink Calculator`);
 								this.sendTo(obj.from, obj.command, [{ label: "None available", value: "None available" }], obj.callback);
 							}
-						} catch (error) {
+						} catch {
 							this.sendTo(obj.from, obj.command, [{ label: "None available", value: "None available" }], obj.callback);
 						}
 					}
@@ -395,6 +459,8 @@ class Tibberlink extends utils.Adapter {
 
 	/**
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
+	 *
+	 * @param callback - void
 	 */
 	private onUnload(callback: () => void): void {
 		try {
@@ -403,11 +469,9 @@ class Tibberlink extends utils.Adapter {
 				cronJob.stop();
 			}
 			if (this.config.UseLocalPulseData) {
-				//tibberLocal
-				//WiP call shutdown in tibberLocale
+				//WiP call shutdown in tibberLocal
 			}
-			// info.connect to false, when adapter is shut down
-			this.setState("info.connection", false, true);
+			void this.setState("info.connection", false, true);
 			callback();
 		} catch (e) {
 			this.log.warn((e as Error).message);
@@ -417,6 +481,9 @@ class Tibberlink extends utils.Adapter {
 
 	/**
 	 * Is called if a subscribed state changes
+	 *
+	 * @param id - state ID
+	 * @param state - ioBroker state object
 	 */
 	private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
 		try {
@@ -424,6 +491,7 @@ class Tibberlink extends utils.Adapter {
 				// The state was changed
 				// this.adapter.subscribeStates(`Homes.${homeId}.Calculations.${channel}.*`);
 				if (!state.ack) {
+					this.log.debug(`state change detected and parsing for id: ${id} - state: ${state.val}`);
 					if (id.includes(`.Calculations.`)) {
 						const statePath = id.split(".");
 						const homeIDToMatch = statePath[3];
@@ -439,7 +507,7 @@ class Tibberlink extends utils.Adapter {
 											this.log.debug(
 												`calculator settings state in home: ${homeIDToMatch} - channel: ${calcChannel} - changed to Active: ${this.config.CalculatorList[calcChannel].chActive}`,
 											);
-											this.setStateAsync(id, state.val, true); // set acknowledge true
+											void this.setState(id, state.val, true); // set acknowledge true
 										} else {
 											this.log.warn(`Wrong type for channel: ${calcChannel} - chActive: ${state.val}`);
 										}
@@ -451,7 +519,7 @@ class Tibberlink extends utils.Adapter {
 											this.log.debug(
 												`calculator settings state in home: ${homeIDToMatch} - channel: ${calcChannel} - changed to TriggerPrice: ${this.config.CalculatorList[calcChannel].chTriggerPrice}`,
 											);
-											this.setStateAsync(id, state.val, true);
+											void this.setState(id, state.val, true);
 										} else {
 											this.log.warn(`Wrong type for channel: ${calcChannel} - chTriggerPrice: ${state.val}`);
 										}
@@ -463,7 +531,7 @@ class Tibberlink extends utils.Adapter {
 											this.log.debug(
 												`calculator settings state in home: ${homeIDToMatch} - channel: ${calcChannel} - changed to AmountHours: ${this.config.CalculatorList[calcChannel].chAmountHours}`,
 											);
-											this.setStateAsync(id, state.val, true);
+											void this.setState(id, state.val, true);
 										} else {
 											this.log.warn(`Wrong type for channel: ${calcChannel} - chAmountHours: ${state.val}`);
 										}
@@ -485,7 +553,7 @@ class Tibberlink extends utils.Adapter {
 														"yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
 													)}`,
 												);
-												this.setStateAsync(id, format(dateWithTimeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"), true);
+												void this.setState(id, format(dateWithTimeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"), true);
 											} else {
 												this.log.warn(
 													`Invalid ISO-8601 format or missing timezone offset for channel: ${calcChannel} - chStartTime: ${state.val}`,
@@ -506,13 +574,28 @@ class Tibberlink extends utils.Adapter {
 												// floor to hour
 												dateWithTimeZone.setMinutes(0, 0, 0);
 												this.config.CalculatorList[calcChannel].chStopTime = dateWithTimeZone;
+
+												// WIP 3.5.4 START Warn long LTF
+												// Get StartTime directly as a Date object
+												const startTime = this.config.CalculatorList[calcChannel].chStartTime;
+												// Check if StopTime is not the same day or the next day as StartTime
+												if (!isSameDay(dateWithTimeZone, startTime) && !isSameDay(dateWithTimeZone, addDays(startTime, 1))) {
+													this.log.warn(
+														`StopTime for channel ${calcChannel} is not the same or next day as StartTime! StartTime: ${startTime.toISOString()}, StopTime: ${dateWithTimeZone.toISOString()}`,
+													);
+													this.log.warn(
+														`Setting StopTime outside the feasible range (same or next day as StartTime) can lead to errors in calculations or unexpected behavior. Please verify your configuration.`,
+													);
+												}
+												// WIP 3.5.4 STOP
+
 												this.log.debug(
 													`calculator settings state in home: ${homeIDToMatch} - channel: ${calcChannel} - changed to StopTime: ${format(
 														dateWithTimeZone,
 														"yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
 													)}`,
 												);
-												this.setStateAsync(id, format(dateWithTimeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"), true);
+												void this.setState(id, format(dateWithTimeZone, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"), true);
 											} else {
 												this.log.warn(
 													`Invalid ISO-8601 format or missing timezone offset for channel: ${calcChannel} - chStopTime: ${state.val}`,
@@ -529,7 +612,7 @@ class Tibberlink extends utils.Adapter {
 											this.log.debug(
 												`calculator settings state in home: ${homeIDToMatch} - channel: ${calcChannel} - changed to RepeatDays: ${this.config.CalculatorList[calcChannel].chRepeatDays}`,
 											);
-											this.setStateAsync(id, state.val, true);
+											void this.setState(id, state.val, true);
 										} else {
 											this.log.warn(`Wrong type for channel: ${calcChannel} - chRepeatDays: ${state.val}`);
 										}
@@ -541,7 +624,7 @@ class Tibberlink extends utils.Adapter {
 											this.log.debug(
 												`calculator settings state in home: ${homeIDToMatch} - channel: ${calcChannel} - changed to EfficiencyLoss: ${this.config.CalculatorList[calcChannel].chEfficiencyLoss}`,
 											);
-											this.setStateAsync(id, state.val, true);
+											void this.setState(id, state.val, true);
 										} else {
 											this.log.warn(`Wrong type for channel: ${calcChannel} - chEfficiencyLoss: ${state.val}`);
 										}
@@ -549,7 +632,7 @@ class Tibberlink extends utils.Adapter {
 									default:
 										this.log.debug(`unknown value for setting type: ${settingType}`);
 								}
-								this.tibberCalculator.startCalculatorTasks(true);
+								void this.tibberCalculator.startCalculatorTasks(true);
 							} else {
 								this.log.debug(`wrong index values in state ID or missing value for settingType`);
 							}
